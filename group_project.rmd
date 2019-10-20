@@ -1,0 +1,29 @@
+---
+title: "Stats Modeling Project"
+author: "Group 5"
+date: "10/20/2019"
+output: html_document
+bibliography: bibliography.bib
+nocite: | 
+  @rlang
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(magrittr)  # provides more pipe oeprators
+library(dslabs)  # loads datasets
+# Note to self: Bibliography https://rmarkdown.rstudio.com/authoring_bibliographies_and_citations.html
+# author: "Xin Jin, Reid Ginoza, Karina Coira, Heidi Lovejoy, Salvador Ten"
+```
+
+```{r import data}
+data(package="dslabs")
+data("us_contagious_diseases")
+data("polls_us_election_2016")
+```
+
+# Introduction
+Data was acquired through the R package `dslabs` [@dslabs].
+
+# References
