@@ -11,18 +11,28 @@ nocite: |
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
+library(knitr)
+library(kableExtra) # for tables
 library(magrittr)  # provides more pipe oeprators
 library(dslabs)  # loads datasets
+options(knitr.table.format = "latex")
 ```
 
 ```{r import data}
-data(package="dslabs")
+data(package = "dslabs")
 data("research_funding_rates")
 data <- as_tibble(research_funding_rates)
 ```
 
 # Introduction
 Data was acquired through the R package `dslabs` [@dslabs].
+
+# Viewing Data
+Just as an example. Will delete later.
+```{r view data}
+data %>% kable(format.args = list(trim = TRUE), booktabs = T) %>%
+  kable_styling(latex_options = c("striped", "scale_down")) %>% landscape()
+```
 
 ## Session Info
 ```{r Session Info}
