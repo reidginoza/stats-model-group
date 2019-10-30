@@ -1,6 +1,6 @@
 ---
 title: "Stats Modeling Project"
-author: "Group 5"
+author: "Xin Jin, Reid Ginoza, Karina Coira, Heidi Lovejoy, Salvador Ten"
 date: "10/20/2019"
 output: pdf_document
 bibliography: bibliography.bib
@@ -14,13 +14,12 @@ library(tidyverse)
 library(magrittr)  # provides more pipe oeprators
 library(dslabs)  # loads datasets
 # Note to self: Bibliography https://rmarkdown.rstudio.com/authoring_bibliographies_and_citations.html
-# author: "Xin Jin, Reid Ginoza, Karina Coira, Heidi Lovejoy, Salvador Ten"
 ```
 
 ```{r import data}
 data(package="dslabs")
-data("us_contagious_diseases")
-data("polls_us_election_2016")
+data("research_funding_rates")
+data <- as_tibble(research_funding_rates)
 ```
 
 # Introduction
