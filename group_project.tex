@@ -1,0 +1,258 @@
+\documentclass[]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\hypersetup{unicode=true,
+            pdftitle={Stats Modeling Project},
+            pdfauthor={Group 5: Xin Jin, Reid Ginoza, Heidi Lovejoy},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{0}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+%%% Use protect on footnotes to avoid problems with footnotes in titles
+\let\rmarkdownfootnote\footnote%
+\def\footnote{\protect\rmarkdownfootnote}
+
+%%% Change title format to be more compact
+\usepackage{titling}
+
+% Create subtitle command for use in maketitle
+\providecommand{\subtitle}[1]{
+  \posttitle{
+    \begin{center}\large#1\end{center}
+    }
+}
+
+\setlength{\droptitle}{-2em}
+
+  \title{Stats Modeling Project}
+    \pretitle{\vspace{\droptitle}\centering\huge}
+  \posttitle{\par}
+    \author{Group 5: Xin Jin, Reid Ginoza, Heidi Lovejoy}
+    \preauthor{\centering\large\emph}
+  \postauthor{\par}
+      \predate{\centering\large\emph}
+  \postdate{\par}
+    \date{11/18/2019}
+
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage{colortbl}
+\usepackage{pdflscape}
+\usepackage{tabu}
+\usepackage{threeparttable}
+\usepackage{threeparttablex}
+\usepackage[normalem]{ulem}
+\usepackage{makecell}
+\usepackage{xcolor}
+
+\begin{document}
+\maketitle
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{data <-}\StringTok{ }\KeywordTok{read_spss}\NormalTok{(}\StringTok{'Schools.sav'}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }\KeywordTok{as_tibble}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{introduction}{%
+\section{Introduction}\label{introduction}}
+
+\hypertarget{viewing-data}{%
+\section{Viewing Data}\label{viewing-data}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{data }\OperatorTok{%>%}\StringTok{ }\KeywordTok{summarise_all}\NormalTok{(}\KeywordTok{funs}\NormalTok{(}\KeywordTok{sum}\NormalTok{(}\KeywordTok{is.na}\NormalTok{(.)))) }\OperatorTok{%>%}\StringTok{ }\KeywordTok{kable}\NormalTok{() }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{kable_styling}\NormalTok{(}\DataTypeTok{latex_options =} \KeywordTok{c}\NormalTok{(}\StringTok{"striped"}\NormalTok{, }\StringTok{"scale_down"}\NormalTok{)) }\OperatorTok{%>%}\StringTok{ }\KeywordTok{landscape}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: funs() is soft deprecated as of dplyr 0.8.0
+## Please use a list of either functions or lambdas: 
+## 
+##   # Simple named list: 
+##   list(mean = mean, median = median)
+## 
+##   # Auto named with `tibble::lst()`: 
+##   tibble::lst(mean, median)
+## 
+##   # Using lambdas
+##   list(~ mean(., trim = .2), ~ median(., na.rm = TRUE))
+## This warning is displayed once per session.
+\end{verbatim}
+
+\begin{landscape}\begin{table}[H]
+\centering
+\resizebox{\linewidth}{!}{
+\begin{tabular}{r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r}
+\hline
+unitid & institution\_name & addr1\_txt & addr2\_txt & city\_txt & state\_cd & zip\_text & ClassificationCode & classification\_name & ClassificationOther & EFMaleCount & EFFemaleCount & EFTotalCount & sector\_cd & sector\_name & SPORTSCODE & PARTIC\_MEN & PARTIC\_WOMEN & PARTIC\_COED\_MEN & PARTIC\_COED\_WOMEN & SUM\_PARTIC\_MEN & SUM\_PARTIC\_WOMEN & OPEXPPERPART\_MEN & OPEXPPERTEAM\_MEN & OPEXPPERPART\_WOMEN & OPEXPPERTEAM\_WOMEN & TOTAL\_OPEXP\_MENWOMEN & OPEXPPERPART\_COED\_MEN & OPEXPPERTEAM\_COED\_MEN & OPEXP\_PART\_COED\_WOMEN & OPEXP\_TEAM\_COED\_WOMEN & TOTAL\_OPEXP\_COEDTEAM & SUM\_OPEXPPERPART\_MEN & SUM\_OPEXPPERTEAM\_MEN & SUM\_OPEXPPERPART\_WOMEN & SUM\_OPEXPPERTEAM\_WOMEN & TOTAL\_OPEXP\_INCLCOED & MEN\_FTHEADCOACH\_MALE & MEN\_PTHEADCOACH\_MALE & MEN\_FTUNIVEMPLOY\_MALE & MEN\_PTUNIVEMPLOY\_MALE & MEN\_FTHEADCOACH\_FEM & MEN\_PTHEADCOACH\_FEM & MEN\_FTUNIVEMPLOY\_FEM & MEN\_PTUNIVEMPLOY\_FEM & MEN\_TOTAL\_HEADCOACH & WOMEN\_FTHDCOACH\_MALE & WOMEN\_PTHDCOACH\_MALE & WOMEN\_FTUNIVEMP\_MALE & WOMEN\_PTUNIVEMP\_MALE & WOMEN\_FTHDCOACH\_FEM & WOMEN\_PTHDCOACH\_FEM & WOMEN\_FTUNIVEMP\_FEM & WOMEN\_PTUNIVEMP\_FEM & WOMEN\_TOTAL\_HDCOACH & COED\_FTHDCOACH\_MALE & COED\_PTHDCOACH\_MALE & COED\_FTUNIVEMP\_MALE & COED\_PTUNIVEMP\_MALE & COED\_FTHDCOACH\_FEM & COED\_PTHDCOACH\_FEM & COED\_FTUNIVEMP\_FEM & COED\_PTUNIVEMP\_FEM & COED\_TOTAL\_HDCOACH & SUM\_FTHDCOACH\_MALE & SUM\_PTHDCOACH\_MALE & SUM\_FTUNIVEMP\_MALE & SUM\_PTUNIVEMP\_MALE & SUM\_FTHDCOACH\_FEM & SUM\_PTHDCOACH\_FEM & SUM\_FTUNIVEMP\_FEM & SUM\_PTUNIVEMP\_FEM & SUM\_TOTAL\_HDCOACH & MEN\_FTASCOACH\_MALE & MEN\_PTASCOACH\_MALE & MEN\_FTACUNIVEMP\_MALE & MEN\_PTACUNIVEMP\_MALE & MEN\_FTASSTCOACH\_FEM & MEN\_PTASSTCOACH\_FEM & MEN\_FTACUNIVEMP\_FEM & MEN\_PTACUNIVEMP\_FEM & MEN\_TOTAL\_ASSTCOACH & WOMEN\_FTASCOACH\_MALE & WOMEN\_PTASCOACH\_MALE & WOMEN\_FTACUNEMP\_MALE & WOMEN\_PTACUNEMP\_MALE & WOMEN\_FTASTCOACH\_FEM & WOMEN\_PTASTCOACH\_FEM & WOMN\_FTACUNIVEMP\_FEM & WOMN\_PTACUNIVEMP\_FEM & WOMEN\_TOTAL\_ASTCOACH & COED\_FTASCOACH\_MALE & COED\_PTASCOACH\_MALE & COED\_FTACUNEMP\_MALE & COED\_PTACUNEMP\_MALE & COED\_FTASTCOACH\_FEM & COED\_PTASTCOACH\_FEM & COED\_FTACUNIVEMP\_FEM & COED\_PTACUNIVEMP\_FEM & COED\_TOTAL\_ASTCOACH & SUM\_FTASCOACH\_MALE & SUM\_PTASCOACH\_MALE & SUM\_FTACUNIVEMP\_MALE & SUM\_PTACUNIVEMP\_MALE & SUM\_FTASCOACH\_FEM & SUM\_PTASCOACH\_FEM & SUM\_FTACUNIVEMP\_FEM & SUM\_PTACUNIVEMP\_FEM & SUM\_TOTAL\_ASSTCOACH & REV\_MEN & REV\_WOMEN & TOTAL\_REV\_MENWOMEN & REV\_COED\_MEN & REV\_COED\_WOMEN & TOTAL\_REV\_COED & REVENUE\_MENALL & REVENUE\_WOMENALL & TOTAL\_REVENUE\_ALL & EXP\_MEN & EXP\_WOMEN & TOTAL\_EXP\_MENWOMEN & EXP\_COED\_MEN & EXP\_COED\_WOMEN & TOTAL\_EXP\_COED & EXPENSE\_MENALL & EXPENSE\_WOMENALL & TOTAL\_EXPENSE\_ALL & Sports\\
+\hline
+\rowcolor{gray!6}  0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 5201 & 3785 & 17471 & 17471 & 0 & 0 & 125 & 125 & 125 & 125 & 125 & 17471 & 17471 & 17471 & 17471 & 17471 & 0 & 0 & 0 & 0 & 0 & 13028 & 9840 & 8049 & 14878 & 17298 & 16787 & 16937 & 17148 & 5201 & 15094 & 11484 & 11340 & 15229 & 14614 & 14426 & 12746 & 16305 & 3785 & 17593 & 17560 & 17558 & 17596 & 17604 & 17579 & 17580 & 17603 & 17471 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 14435 & 8210 & 12465 & 8977 & 17308 & 15648 & 16815 & 15979 & 5371 & 15855 & 11094 & 14471 & 11837 & 15024 & 10170 & 13940 & 10867 & 4017 & 17620 & 17580 & 17610 & 17589 & 17614 & 17586 & 17606 & 17594 & 17540 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 5201 & 3785 & 125 & 17471 & 17471 & 17471 & 0 & 0 & 0 & 5201 & 3785 & 125 & 17471 & 17471 & 17471 & 0 & 0 & 0 & 0\\
+\hline
+\end{tabular}}
+\end{table}
+\end{landscape}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# data %>% kable(format.args = list(trim = TRUE), booktabs = T) %>%}
+\CommentTok{#   kable_styling(latex_options = c("striped", "scale_down")) %>% landscape()}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{session-info}{%
+\subsection{Session Info}\label{session-info}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{sessionInfo}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## R version 3.6.1 (2019-07-05)
+## Platform: x86_64-apple-darwin15.6.0 (64-bit)
+## Running under: macOS High Sierra 10.13.6
+## 
+## Matrix products: default
+## BLAS:   /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRblas.0.dylib
+## LAPACK: /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRlapack.dylib
+## 
+## locale:
+## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+## 
+## attached base packages:
+## [1] stats     graphics  grDevices utils     datasets  methods   base     
+## 
+## other attached packages:
+##  [1] haven_2.1.1      magrittr_1.5     kableExtra_1.1.0 knitr_1.24      
+##  [5] forcats_0.4.0    stringr_1.4.0    dplyr_0.8.3      purrr_0.3.2     
+##  [9] readr_1.3.1      tidyr_0.8.3      tibble_2.1.3     ggplot2_3.2.1   
+## [13] tidyverse_1.2.1 
+## 
+## loaded via a namespace (and not attached):
+##  [1] Rcpp_1.0.2        cellranger_1.1.0  pillar_1.4.2     
+##  [4] compiler_3.6.1    tools_3.6.1       zeallot_0.1.0    
+##  [7] digest_0.6.20     viridisLite_0.3.0 lubridate_1.7.4  
+## [10] jsonlite_1.6      evaluate_0.14     nlme_3.1-140     
+## [13] gtable_0.3.0      lattice_0.20-38   pkgconfig_2.0.2  
+## [16] rlang_0.4.0       cli_1.1.0         rstudioapi_0.10  
+## [19] yaml_2.2.0        xfun_0.9          withr_2.1.2      
+## [22] xml2_1.2.2        httr_1.4.1        vctrs_0.2.0      
+## [25] generics_0.0.2    hms_0.5.1         webshot_0.5.1    
+## [28] grid_3.6.1        tidyselect_0.2.5  glue_1.3.1       
+## [31] R6_2.4.0          readxl_1.3.1      rmarkdown_1.15   
+## [34] modelr_0.1.5      backports_1.1.4   scales_1.0.0     
+## [37] htmltools_0.4.0   rvest_0.3.4       assertthat_0.2.1 
+## [40] colorspace_1.4-1  stringi_1.4.3     lazyeval_0.2.2   
+## [43] munsell_0.5.0     broom_0.5.2       crayon_1.3.4
+\end{verbatim}
+
+\hypertarget{references}{%
+\section*{References}\label{references}}
+\addcontentsline{toc}{section}{References}
+
+\hypertarget{refs}{}
+\leavevmode\hypertarget{ref-rlang}{}%
+R Core Team. 2019. \emph{R: A Language and Environment for Statistical
+Computing}. Vienna, Austria: R Foundation for Statistical Computing.
+\url{https://www.R-project.org/}.
+
+
+\end{document}

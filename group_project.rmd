@@ -1,7 +1,7 @@
 ---
 title: "Stats Modeling Project"
-author: "Xin Jin, Reid Ginoza, Karina Coira, Heidi Lovejoy, Salvador Ten"
-date: "10/20/2019"
+author: "Group 5: Xin Jin, Reid Ginoza, Heidi Lovejoy"
+date: "11/18/2019"
 output: pdf_document
 bibliography: bibliography.bib
 nocite: | 
@@ -14,24 +14,29 @@ library(tidyverse)
 library(knitr)
 library(kableExtra) # for tables
 library(magrittr)  # provides more pipe oeprators
-library(dslabs)  # loads datasets
+library(haven)
 options(knitr.table.format = "latex")
 ```
 
 ```{r import data}
-data(package = "dslabs")
-data("research_funding_rates")
-data <- as_tibble(research_funding_rates)
+school_data <- read_spss('Schools.sav') %>% select(
+  -unitid, -addr1_txt, -addr2_txt, -zip_text, -ClassificationCode,-ClassificationOther,
+  -sector_cd
+  )
+
+institution_data <- read_spss('InstLevel.sav') %>% select(
+  -unitid, -addr1_txt, -addr2_txt, -zip_text
+)
 ```
 
 # Introduction
-Data was acquired through the R package `dslabs` [@dslabs].
+
 
 # Viewing Data
-Just as an example. Will delete later.
 ```{r view data}
-data %>% kable(format.args = list(trim = TRUE), booktabs = T) %>%
-  kable_styling(latex_options = c("striped", "scale_down")) %>% landscape()
+# data %>% summarise_all(funs(sum(is.na(.)))) -> my_is.na
+# data %>% kable(format.args = list(trim = TRUE), booktabs = T) %>%
+#   kable_styling(latex_options = c("striped", "scale_down")) %>% landscape()
 ```
 
 ## Session Info
