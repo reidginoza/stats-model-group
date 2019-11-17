@@ -240,4 +240,6 @@ TSWLatexianTemp*
 *.sta
 # Makeindex log files
 *.lpz
+# Manually added
 ~$Project Data_Heidi Organized Version.xlsx
+group_project.log
