@@ -19,25 +19,34 @@ options(knitr.table.format = "latex")
 ```
 
 ```{r import data}
-school_data <- read_spss('Schools.sav') %>% select(
-  -unitid, -addr1_txt, -addr2_txt, -zip_text, -ClassificationCode,-ClassificationOther,
-  -sector_cd
-  )
+institution_data <- read_spss('InstLevel.sav') %>%
+  select(  # will change later when we decide what variables we want
+  -unitid, -addr1_txt, -addr2_txt, -city_txt, -zip_text, -sector_cd, -ClassificationCode, -ClassificationOther
+  ) %>%
+  filter(grepl('4-year', sector_name))  %>% # only 4-year Schools
+  filter(is.na(IL_PARTIC_COED_MEN) | IL_PARTIC_COED_MEN == 0 ) %>% # only schools with no male participants in coed
+  filter(is.na(IL_PARTIC_COED_WOMEN) | IL_PARTIC_COED_WOMEN == 0 ) %>% # only schools with no female participants in coed
+  select(-contains("COED")) # ignore variables with the word "coed"
 
-institution_data <- read_spss('InstLevel.sav') %>% select(
-  -unitid, -addr1_txt, -addr2_txt, -zip_text
-)
+```
+
+```{r Notes to self, include=FALSE}
+# To view the school data
+# school_data <- read_spss('Schools.sav') %>% select(
+#   -unitid, -addr1_txt, -addr2_txt, -zip_text, -ClassificationCode,-ClassificationOther,
+#   -sector_cd
+#   )
+
+# To view variables included as a list (although you could probably just view the data):
+# institution_columns <- institution_data %>% colnames()
+
+# To view number of NAs in a column:
+# count.of.na <- institution_data %>% summarise_all(~sum(is.na(.)))
 ```
 
 # Introduction
 
 
-# Viewing Data
-```{r view data}
-# data %>% summarise_all(funs(sum(is.na(.)))) -> my_is.na
-# data %>% kable(format.args = list(trim = TRUE), booktabs = T) %>%
-#   kable_styling(latex_options = c("striped", "scale_down")) %>% landscape()
-```
 
 ## Session Info
 ```{r Session Info}
