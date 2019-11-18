@@ -2,6 +2,10 @@
 title: "Stats Modeling Project"
 author: "Group 5: Xin Jin, Reid Ginoza, Heidi Lovejoy"
 date: "11/18/2019"
+# header-includes:
+#    - \usepackage{amsmath, amssymb}
+   # - \usepackage{natbib}
+   # - \usepackage{hyperref}
 output: pdf_document
 bibliography: bibliography.bib
 nocite: | 
@@ -19,7 +23,7 @@ options(knitr.table.format = "latex")
 ```
 
 ```{r import data}
-institution_data <- read_spss('InstLevel.sav') %>%
+ncaa.div.i_data <- read_spss('InstLevel.sav') %>%
   select(  # TODO will change later when we decide what variables we want
   -unitid, -addr1_txt, -addr2_txt, -city_txt, -zip_text, -sector_cd,
   -ClassificationCode, -ClassificationOther
@@ -27,43 +31,72 @@ institution_data <- read_spss('InstLevel.sav') %>%
   filter(grepl('4-year', sector_name))  %>% # only 4-year Schools
   filter(is.na(IL_PARTIC_COED_MEN) | IL_PARTIC_COED_MEN == 0 ) %>% # only schools with no male participants in coed
   filter(is.na(IL_PARTIC_COED_WOMEN) | IL_PARTIC_COED_WOMEN == 0 ) %>% # only schools with no female participants in coed
-  select(-contains("COED")) # ignore variables with the word "coed"
-
+  select(-contains("COED")) %>% # ignore variables with the word "coed"
+  filter(grepl('NCAA Division I-', classification_name)) # only NCAA division 1
 ```
 
 ```{r Notes to self, include=FALSE}
-# To view the school data
+##### All 4-year Institutions
+# institution_data <- read_spss('InstLevel.sav') %>%
+#   select(  # TODO will change later when we decide what variables we want
+#   -unitid, -addr1_txt, -addr2_txt, -city_txt, -zip_text, -sector_cd,
+#   -ClassificationCode, -ClassificationOther
+#   ) %>%
+#   filter(grepl('4-year', sector_name))  %>% # only 4-year Schools
+#   filter(is.na(IL_PARTIC_COED_MEN) | IL_PARTIC_COED_MEN == 0 ) %>% # only schools with no male participants in coed
+#   filter(is.na(IL_PARTIC_COED_WOMEN) | IL_PARTIC_COED_WOMEN == 0 ) %>% # only schools with no female participants in coed
+#   select(-contains("COED")) # ignore variables with the word "coed"
+
+##### To view the school data
 # school_data <- read_spss('Schools.sav') %>% select(
 #   -unitid, -addr1_txt, -addr2_txt, -zip_text, -ClassificationCode,-ClassificationOther,
 #   -sector_cd
 #   )
 
+#####
 # To view variables included as a list (although you could probably just view the data):
 # institution_columns <- institution_data %>% colnames()
 
+#####
 # To view number of NAs in a column:
 # count.of.na <- institution_data %>% summarise_all(~sum(is.na(.)))
 ```
 
 # Introduction
-%TODO Briefly give meaning to your project – what is the background and why is this project important?  (20 points)
+<!-- %TODO Briefly give meaning to your project – what is the background and why is this project important?  (20 points) -->
+This project examines NCAA Division I athletics. We used the data from the Equity in Athletics Survey, Year 2017-2018, from the U.S. Department of Education Office of Postsecondary Education [-@EADA2018].
 
 # Hypotheses
-%TODO Clearly state the hypotheses being tested. (20 points)
+
+## Head Coaches of Men's Teams and School Type
+<!-- %TODO Clearly state the hypotheses being tested. (20 points) -->
+<!-- Note: we need the two spaces at the end of the first line of the hypothesis test-->
+\(H_0\):  
+\(H_1\):
+
+## Head Coaches of Men's Teams and Participation
+<!-- %TODO Clearly state the hypotheses being tested. (20 points) -->
+\(H_0\):  
+\(H_1\):
+
+## ANOVA 
+\(H_0\):  
+\(H_1\):
+
+Calculate a new variable Profits from Revenue - Expenses. Do expenses per male and expenses per female have main effects on revenue?
 
 # Methods
-%TODO State and explain the methodology used to test the hypotheses.  (20 points)
+<!-- %TODO State and explain the methodology used to test the hypotheses.  (20 points) -->
 
 # Results
-%TODO Describe the data (1st paragraph)
+<!-- %TODO Describe the data (1st paragraph) -->
 
-## Visualizing Head Coach data
+## Describing and Visualizing Head Coach data
 ```{r hist of head coach, message=FALSE}
-ncaa.div.i_hd.coach <- institution_data %>%
-  filter(grepl('NCAA Division I-', classification_name)) %>%
+hd.coach.salary_data <- ncaa.div.i_data %>%
   select(sector_name, HDCOACH_SALARY_MEN)
 
-ncaa.div.i_hd.coach %>%
+hd.coach.salary_data %>%
   ggplot(aes(x = HDCOACH_SALARY_MEN, fill = sector_name)) +
   geom_histogram(position = "dodge") +
   labs(title="Histogram of NCAA Div. I Men's Head Coach Salary", x = "Salary (USD)",
@@ -78,13 +111,14 @@ ncaa.div.i_hd.coach %>%
   )
 ```
 
-## Visualizing Number of Athletes and Head Coach Salaries
+## Describing and Visualizing Participation of Men and Head Coach Salaries
 ```{r scatter plot of head coach salaries}
-participation.data <- institution_data %>%
+men.participation.data <- ncaa.div.i_data %>%
   select(IL_PARTIC_MEN, HDCOACH_SALARY_MEN)
 
-participation.data %>% ggplot(aes(x=IL_PARTIC_MEN, y=HDCOACH_SALARY_MEN)) +
+men.participation.data %>% ggplot(aes(x=IL_PARTIC_MEN, y=HDCOACH_SALARY_MEN)) +
   geom_point() +
+  geom_smooth(method = lm) +
   labs(title="Scatterplot of Men's Head Coach Salary by Men Particiation Counts", x = "Count of Men Participating",
        y = "Head Coach's Salary (USD)") +
   theme(
@@ -96,10 +130,13 @@ participation.data %>% ggplot(aes(x=IL_PARTIC_MEN, y=HDCOACH_SALARY_MEN)) +
   )
 ```
 
-%TODO And analysis results (order of results should correspond to hypotheses listed).  (20 points)
+<!-- %TODO And analysis results (order of results should correspond to hypotheses listed).  (20 points) -->
+## Results of Head Coach data
+
+## Results of Particiption of Men and Head Coach Salaries
 
 # Conclusion
-%TODO Restate the results in terms of the larger picture; state limitations and opportunities forfuture research (20 points)
+<!-- %TODO Restate the results in terms of the larger picture; state limitations and opportunities for future research (20 points) -->
 
 ## Session Info
 ```{r Session Info}
