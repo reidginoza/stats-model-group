@@ -1,0 +1,212 @@
+---
+title: "Stats Modeling Project"
+author: 'Group 5: Xin Jin, Reid Ginoza, Heidi Lovejoy'
+date: "11/18/2019"
+output:
+  html_document:
+    df_print: paged
+nocite: |
+  @rlang
+bibliography: bibliography.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(knitr)
+library(kableExtra) # for tables
+library(magrittr)  # provides more pipe oeprators
+library(haven)
+options(knitr.table.format = "latex")
+```
+
+```{r import data}
+ncaa.div.i_data <- read_spss('InstLevel.sav') %>%
+  select(  # TODO will change later when we decide what variables we want
+  -unitid, -addr1_txt, -addr2_txt, -city_txt, -zip_text, -sector_cd,
+  -ClassificationCode, -ClassificationOther
+  ) %>%
+  filter(grepl('4-year', sector_name))  %>% # only 4-year Schools
+  filter(is.na(IL_PARTIC_COED_MEN) | IL_PARTIC_COED_MEN == 0 ) %>% # only schools with no male participants in coed
+  filter(is.na(IL_PARTIC_COED_WOMEN) | IL_PARTIC_COED_WOMEN == 0 ) %>% # only schools with no female participants in coed
+  select(-contains("COED")) %>% # ignore variables with the word "coed"
+  filter(grepl('NCAA Division I-', classification_name)) # only NCAA division 1
+```
+
+```{r Notes to self, include=FALSE}
+##### All 4-year Institutions
+# institution_data <- read_spss('InstLevel.sav') %>%
+#   select(  # TODO will change later when we decide what variables we want
+#   -unitid, -addr1_txt, -addr2_txt, -city_txt, -zip_text, -sector_cd,
+#   -ClassificationCode, -ClassificationOther
+#   ) %>%
+#   filter(grepl('4-year', sector_name))  %>% # only 4-year Schools
+#   filter(is.na(IL_PARTIC_COED_MEN) | IL_PARTIC_COED_MEN == 0 ) %>% # only schools with no male participants in coed
+#   filter(is.na(IL_PARTIC_COED_WOMEN) | IL_PARTIC_COED_WOMEN == 0 ) %>% # only schools with no female participants in coed
+#   select(-contains("COED")) # ignore variables with the word "coed"
+##### To view the school data
+# school_data <- read_spss('Schools.sav') %>% select(
+#   -unitid, -addr1_txt, -addr2_txt, -zip_text, -ClassificationCode,-ClassificationOther,
+#   -sector_cd
+#   )
+#####
+# To view variables included as a list (although you could probably just view the data):
+# institution_columns <- institution_data %>% colnames()
+#####
+# To view number of NAs in a column:
+# count.of.na <- institution_data %>% summarise_all(~sum(is.na(.)))
+```
+
+# Introduction
+<!-- %TODO Briefly give meaning to your project – what is the background and why is this project important?  (20 points) -->
+
+This project examines potential(?)salary differences between head coaches from public and private NCAA Division I institutions. We used the data from the Equity in Athletics Survey, Year 2017-2018, from the U.S. Department of Education Office of Postsecondary Education [-@EADA2018]. 
+
+# Hypotheses
+
+## Head Coaches of Men's Teams and School Type
+<!-- %TODO Clearly state the hypotheses being tested. (20 points) -->
+<!-- Note: we need the two spaces at the end of the first line of the hypothesis test-->
+
+## Hypothesis 1) Formally test to determine if there is a difference in the variances of head coach salaries in public institutions vs. those in private institutions. 
+
+## Method 1) To compare the population variances of two independent, randomly selected samples of size n_1 and n_2 (NOTE: fill these in with actual numbers), we use the F-distribution method.
+
+<!-- Note, this requires normality, but the textbook example specifically states that it ignores a slight skew, so this is something to keep in mind-->
+
+<!-- Note:  Just typing out the skeleton code for variance testing. It didn't look like Reid already named things, so I put in the placeholders to start with below-->
+
+```{r}
+#salary_var <- var.test(public, private, alternative = "two.sided", conf.level = 0.95, ratio = 1)
+
+#salary_p <- p.value.string(salary_var$p.value)
+```
+
+**Hypotheses**
+
+$H_0: \ \sigma^2_{public} = \sigma^2_{private}$ <br> 
+$H_1: \ \sigma^2_{public} \ne \sigma^2_{private}$
+
+**Test Statistic**
+
+$F_0 = `r round(salary_var$statistic, digits=2)`$
+
+***p*-value**
+
+$`r salary_p`$.
+
+**Rejection Region**
+
+Reject if $p < \alpha$, where $\alpha=0.05$.
+
+**Conclusion and Interpretation**
+
+Reject/FTR $H_0$. There is/is not sufficient evidence to suggest that there is a difference in the variances of head coach salaries in public institutions vs. those in private institutions.  
+
+## Hypothesis 2) Formally test to determine if there is a difference in the means of head coach salaries in public institutions vs. those in private institutions. 
+
+## Method 2) To compare the population means of the two populations, we use...
+
+<!--TODO: This test will, of course, depend on A) the results from variance test, and B) a test for normality (Q-Q is best)-->
+
+<!--EQUAL VARIANCE/NOT NORMAL:  Wilcoxon Rank Sum-->
+
+<!--UNEQUAL VARIANCES/NORMAL: t-Test/Satterthwaites-->
+
+<!--UNEQUAL VARIANCE/NOT NORMAL: I'm a bit confused about this part. Ch. 5 discusses this, read: large-sample approximation w/unequal variances. We didn't go over this in class, though, so I feel like I may be missing something or just not thinking clearly. In any case, we'll figure this out when we get there-->
+
+## Hypothesis 3)  
+
+## Method 3) 
+
+
+## Hypothesis 4) 
+
+## Method 4) 
+
+
+## Hypothesis 5)  
+
+## Method 5) 
+
+# Results
+<!-- Describe the data (1st paragraph) as well as analysis results (order of results should correspond to hypotheses listed)-->
+
+<!--Describe the data:-->
+
+The data analyzed comes from the Equity in Athletics Survey, Year 2017-2018, from the U.S. Department of Education Office of Postsecondary Education [-@EADA2018]. We analyzed the salaries of n_1 head coaches from NCAA Division I public schools, and n_2 head coaches from NCAA Division I private schools.
+
+The data from public schools is/is not approximately normal with a sample mean of XXX and sample standard deviation of XXX. The data from public schools is/is not approximately normal with a sample mean of XXX and sample standard deviation of XXX. 
+
+DESCRIBE MORE DATA HERE
+
+<!-- %TODO Describe the data (1st paragraph) as well as analysis results (order of results should correspond to hypotheses listed)-->
+
+## Describing and Visualizing Head Coach data
+```{r hist of head coach, message=FALSE}
+hd.coach.salary_data <- ncaa.div.i_data %>%
+  select(sector_name, HDCOACH_SALARY_MEN)
+hd.coach.salary_data %>%
+  ggplot(aes(x = HDCOACH_SALARY_MEN, fill = sector_name)) +
+  geom_histogram(position = "dodge") +
+  labs(title="Histogram of NCAA Div. I Men's Head Coach Salary", x = "Salary (USD)",
+       y = "Count", fill = "School Type:") +
+  theme(
+    legend.position="bottom",
+    panel.background = element_rect(fill = 'white', color = 'grey'),
+    panel.grid.major = element_line(size = 0.25, linetype = 'solid',
+                                color = "grey"), 
+    panel.grid.minor = element_line(size = 0.1, linetype = 'solid',
+                                color = "grey")
+  )
+```
+
+## Describing and Visualizing Participation of Men and Head Coach Salaries
+```{r scatter plot of head coach salaries}
+men.participation.data <- ncaa.div.i_data %>%
+  select(IL_PARTIC_MEN, HDCOACH_SALARY_MEN)
+men.participation.data %>% ggplot(aes(x=IL_PARTIC_MEN, y=HDCOACH_SALARY_MEN)) +
+  geom_point() +
+  geom_smooth(method = lm) +
+  labs(title="Scatterplot of Men's Head Coach Salary by Men Particiation Counts", x = "Count of Men Participating",
+       y = "Head Coach's Salary (USD)") +
+  theme(
+    panel.background = element_rect(fill = 'white', color = 'grey'),
+    panel.grid.major = element_line(size = 0.25, linetype = 'solid',
+                                color = "grey"), 
+    panel.grid.minor = element_line(size = 0.1, linetype = 'solid',
+                                color = "grey")
+  )
+```
+
+## Describing and Visualizing Participation of Men and Head Coach Salaries
+```{r scatter plot of head coach salaries}
+men.participation.data <- ncaa.div.i_data %>%
+  select(IL_PARTIC_MEN, HDCOACH_SALARY_MEN)
+men.participation.data %>% ggplot(aes(x=IL_PARTIC_MEN, y=HDCOACH_SALARY_MEN)) +
+  geom_point() +
+  geom_smooth(method = lm) +
+  labs(title="Scatterplot of Men's Head Coach Salary by Men Particiation Counts", x = "Count of Men Participating",
+       y = "Head Coach's Salary (USD)") +
+  theme(
+    panel.background = element_rect(fill = 'white', color = 'grey'),
+    panel.grid.major = element_line(size = 0.25, linetype = 'solid',
+                                color = "grey"), 
+    panel.grid.minor = element_line(size = 0.1, linetype = 'solid',
+                                color = "grey")
+  )
+```
+
+## Results of Head Coach data
+
+## Results of Particiption of Men and Head Coach Salaries
+
+# Conclusion
+<!-- %TODO Re-state the results in terms of the larger picture; state limitations and opportunities for future research (20 points) -->
+
+## Session Info
+```{r Session Info}
+sessionInfo()
+```
+
+# References
