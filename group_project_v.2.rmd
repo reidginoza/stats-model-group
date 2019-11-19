@@ -161,23 +161,6 @@ hd.coach.salary_data %>%
   )
 ```
 
-## Describing and Visualizing Participation of Men and Head Coach Salaries
-```{r scatter plot of head coach salaries}
-men.participation.data <- ncaa.div.i_data %>%
-  select(IL_PARTIC_MEN, HDCOACH_SALARY_MEN)
-men.participation.data %>% ggplot(aes(x=IL_PARTIC_MEN, y=HDCOACH_SALARY_MEN)) +
-  geom_point() +
-  geom_smooth(method = lm) +
-  labs(title="Scatterplot of Men's Head Coach Salary by Men Particiation Counts", x = "Count of Men Participating",
-       y = "Head Coach's Salary (USD)") +
-  theme(
-    panel.background = element_rect(fill = 'white', color = 'grey'),
-    panel.grid.major = element_line(size = 0.25, linetype = 'solid',
-                                color = "grey"), 
-    panel.grid.minor = element_line(size = 0.1, linetype = 'solid',
-                                color = "grey")
-  )
-```
 
 ## Describing and Visualizing Participation of Men and Head Coach Salaries
 ```{r scatter plot of head coach salaries}

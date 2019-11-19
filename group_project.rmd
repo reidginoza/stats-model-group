@@ -14,6 +14,8 @@ nocite: |
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(pgirmess)
+library(pander)
 library(tidyverse)
 library(knitr)
 library(kableExtra) # for tables
@@ -22,8 +24,19 @@ library(haven)
 options(knitr.table.format = "latex")
 ```
 
+```{r support functions}
+almost_sas <- function(aov.results){
+  par(mfrow=c(2,2))
+  plot(aov.results, which=1)
+  plot(aov.results, which=2)
+  aov_residuals <- residuals(aov.results)
+  plot(density(aov_residuals))
+  hist(aov_residuals)
+}
+```
+
 ```{r import data}
-ncaa.div.i_data <- read_spss('InstLevel.sav') %>%
+institution_data <- read_spss('InstLevel.sav') %>%
   select(  # TODO will change later when we decide what variables we want
   -unitid, -addr1_txt, -addr2_txt, -city_txt, -zip_text, -sector_cd,
   -ClassificationCode, -ClassificationOther
@@ -32,6 +45,8 @@ ncaa.div.i_data <- read_spss('InstLevel.sav') %>%
   filter(is.na(IL_PARTIC_COED_MEN) | IL_PARTIC_COED_MEN == 0 ) %>% # only schools with no male participants in coed
   filter(is.na(IL_PARTIC_COED_WOMEN) | IL_PARTIC_COED_WOMEN == 0 ) %>% # only schools with no female participants in coed
   select(-contains("COED")) %>% # ignore variables with the word "coed"
+  mutate(Grand.Total.Profits = GRND_TOTAL_REVENUE - GRND_TOTAL_EXPENSE)
+ncaa.div.i_data <- institution_data %>%
   filter(grepl('NCAA Division I-', classification_name)) # only NCAA division 1
 ```
 
@@ -60,6 +75,10 @@ ncaa.div.i_data <- read_spss('InstLevel.sav') %>%
 #####
 # To view number of NAs in a column:
 # count.of.na <- institution_data %>% summarise_all(~sum(is.na(.)))
+
+#####
+# To view unique entries of a column
+# divisions <- institution_data$classification_name %>% unique()
 ```
 
 # Introduction
@@ -67,6 +86,9 @@ ncaa.div.i_data <- read_spss('InstLevel.sav') %>%
 This project examines NCAA Division I athletics. We used the data from the Equity in Athletics Survey, Year 2017-2018, from the U.S. Department of Education Office of Postsecondary Education [-@EADA2018].
 
 # Hypotheses
+
+## Divisions and Profits
+
 
 ## Head Coaches of Men's Teams and School Type
 <!-- %TODO Clearly state the hypotheses being tested. (20 points) -->
@@ -79,17 +101,31 @@ This project examines NCAA Division I athletics. We used the data from the Equit
 \(H_0\):  
 \(H_1\):
 
-## ANOVA 
-\(H_0\):  
-\(H_1\):
+## Difference in Classifications
+There are 18 different classifications, including NCAA Division I-FCS, NCAA II without Football, and so forth. This question looks at the means of the profits for each classification.
+\(H_0\): \(\mu_1 = \mu_2 = \dots = \mu_{18}\)  
+\(H_1\): At least one is different
 
-Calculate a new variable Profits from Revenue - Expenses. Do expenses per male and expenses per female have main effects on revenue?
+## Difference in Classfications (Nonparametric)
 
 # Methods
 <!-- %TODO State and explain the methodology used to test the hypotheses.  (20 points) -->
 
 # Results
 <!-- %TODO Describe the data (1st paragraph) -->
+
+## Results of Difference in Classification
+```{r ANOVA for sectors}
+classification.results <- aov(Grand.Total.Profits ~ classification_name, data = institution_data)
+almost_sas(classification.results)
+```
+
+```{r Classification Kruskal-Wallis}
+classification_kruskal.results <- kruskal.test(Grand.Total.Profits ~ classification_name, data = institution_data)
+classification_post.hoc <- kruskalmc(Grand.Total.Profits ~ classification_name, data = institution_data)
+
+# pander(classification_post.hoc[[3]], style='rmarkdown')  # TODO: shorten table!
+```
 
 ## Describing and Visualizing Head Coach data
 ```{r hist of head coach, message=FALSE}
@@ -109,6 +145,19 @@ hd.coach.salary_data %>%
     panel.grid.minor = element_line(size = 0.1, linetype = 'solid',
                                 color = "grey")
   )
+```
+
+```{r qq plot of Private Schools head coach}
+hd.coach.salary_data %>%
+  filter(grepl('Private', sector_name)) %>% 
+  ggplot(aes(sample = HDCOACH_SALARY_MEN)) + 
+  stat_qq() + stat_qq_line() + theme_bw()
+```
+```{r qq plot Public Schools head cach}
+hd.coach.salary_data %>%
+  filter(grepl('Public', sector_name)) %>% 
+  ggplot(aes(sample = HDCOACH_SALARY_MEN)) + 
+  stat_qq() + stat_qq_line() + theme_bw()
 ```
 
 ## Describing and Visualizing Participation of Men and Head Coach Salaries
