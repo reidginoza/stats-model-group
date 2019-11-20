@@ -45,7 +45,9 @@ institution_data <- read_spss('InstLevel.sav') %>%
   filter(is.na(IL_PARTIC_COED_MEN) | IL_PARTIC_COED_MEN == 0 ) %>% # only schools with no male participants in coed
   filter(is.na(IL_PARTIC_COED_WOMEN) | IL_PARTIC_COED_WOMEN == 0 ) %>% # only schools with no female participants in coed
   select(-contains("COED")) %>% # ignore variables with the word "coed"
-  mutate(Grand.Total.Profits = GRND_TOTAL_REVENUE - GRND_TOTAL_EXPENSE)
+  mutate(Grand.Total.Profits = GRND_TOTAL_REVENUE - GRND_TOTAL_EXPENSE) %>%
+  filter(!is.na(HDCOACH_SALARY_MEN)) %>% # filter out NA
+  filter(!is.na(HDCOACH_SALARY_WOMEN))  # filter out NA
 ncaa.div.i_data <- institution_data %>%
   filter(grepl('NCAA Division I-', classification_name)) # only NCAA division 1
 ```

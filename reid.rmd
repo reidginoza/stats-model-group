@@ -1,7 +1,11 @@
 ---
 title: "Stats Modeling Project"
-author: "Xin Jin, Reid Ginoza, Karina Coira, Heidi Lovejoy, Salvador Ten"
-date: "10/20/2019"
+author: "Group 5: Xin Jin, Reid Ginoza, Heidi Lovejoy"
+date: "11/18/2019"
+# header-includes:
+#    - \usepackage{amsmath, amssymb}
+   # - \usepackage{natbib}
+   # - \usepackage{hyperref}
 output: pdf_document
 bibliography: bibliography.bib
 nocite: | 
@@ -10,20 +14,221 @@ nocite: |
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(pgirmess)
+library(pander)
 library(tidyverse)
+library(knitr)
+library(kableExtra) # for tables
 library(magrittr)  # provides more pipe oeprators
-library(dslabs)  # loads datasets
-# Note to self: Bibliography https://rmarkdown.rstudio.com/authoring_bibliographies_and_citations.html
+library(haven)
+options(knitr.table.format = "latex")
+```
+
+```{r support functions}
+almost_sas <- function(aov.results){
+  par(mfrow=c(2,2))
+  plot(aov.results, which=1)
+  plot(aov.results, which=2)
+  aov_residuals <- residuals(aov.results)
+  plot(density(aov_residuals))
+  hist(aov_residuals)
+}
 ```
 
 ```{r import data}
-data(package="dslabs")
-data("research_funding_rates")
-data <- as_tibble(research_funding_rates)
+institution_data <- read_spss('InstLevel.sav') %>%
+  select(  # TODO will change later when we decide what variables we want
+  -unitid, -addr1_txt, -addr2_txt, -city_txt, -zip_text, -sector_cd,
+  -ClassificationOther
+  ) %>%
+  filter(grepl('4-year', sector_name))  %>% # only 4-year Schools
+  filter(is.na(IL_PARTIC_COED_MEN) | IL_PARTIC_COED_MEN == 0 ) %>% # only schools with no male participants in coed
+  filter(is.na(IL_PARTIC_COED_WOMEN) | IL_PARTIC_COED_WOMEN == 0 ) %>% # only schools with no female participants in coed
+  select(-contains("COED")) %>% # ignore variables with the word "coed"
+  mutate(Grand.Total.Profits = GRND_TOTAL_REVENUE - GRND_TOTAL_EXPENSE) %>%
+  filter(!is.na(HDCOACH_SALARY_MEN)) %>% # filter out NA
+  filter(!is.na(HDCOACH_SALARY_WOMEN))  # filter out NA
+ncaa.div.i_data <- institution_data %>%
+  filter(grepl('NCAA Division I-', classification_name)) # only NCAA division 1
 ```
 
+```{r Notes to self, include=FALSE}
+##### All 4-year Institutions
+# institution_data <- read_spss('InstLevel.sav') %>%
+#   select(  # TODO will change later when we decide what variables we want
+#   -unitid, -addr1_txt, -addr2_txt, -city_txt, -zip_text, -sector_cd,
+#   -ClassificationCode, -ClassificationOther
+#   ) %>%
+#   filter(grepl('4-year', sector_name))  %>% # only 4-year Schools
+#   filter(is.na(IL_PARTIC_COED_MEN) | IL_PARTIC_COED_MEN == 0 ) %>% # only schools with no male participants in coed
+#   filter(is.na(IL_PARTIC_COED_WOMEN) | IL_PARTIC_COED_WOMEN == 0 ) %>% # only schools with no female participants in coed
+#   select(-contains("COED")) # ignore variables with the word "coed"
+
+##### To view the school data
+# school_data <- read_spss('Schools.sav') %>% select(
+#   -unitid, -addr1_txt, -addr2_txt, -zip_text, -ClassificationCode,-ClassificationOther,
+#   -sector_cd
+#   )
+
+#####
+# To view variables included as a list (although you could probably just view the data):
+# institution_columns <- institution_data %>% colnames()
+
+#####
+# To view number of NAs in a column:
+# count.of.na <- institution_data %>% summarise_all(~sum(is.na(.)))
+
+#####
+# To view unique entries of a column
+# divisions <- institution_data$classification_name %>% unique()
+```
+
+# Counts of Divisions
+```{r count}
+institution_data %>%
+  group_by(classification_name) %>% 
+  summarize(Mean.Men.Head.Coach=mean(HDCOACH_SALARY_MEN), SD.Men.Head.Coach=sd(HDCOACH_SALARY_MEN), Count=n()) # %>%
+  # kable() %>%
+  # kable_styling(bootstrap_options = c("striped", "hover"),
+  #               full_width = F,
+  #               font_size = 14,
+  #               position = "left")
+```
+
+
+
+```{r Classification Codes}
+institution_data %>%
+  select(ClassificationCode, classification_name) %>%
+  unique()
+```
+
+```{r}
+institution_data %>%
+  filter(ClassificationCode==9) %>%
+  select(classification_name,HDCOACH_SALARY_WOMEN) %>%
+  # summarize(mean=mean(HDCOACH_SALARY_MEN)) # results in NA
+  summary()
+```
+
+```{r}
+two.way.anova.attempt <- institution_data %>%
+  select(classification_name, HDCOACH_SALARY_MEN, HDCOACH_SALARY_WOMEN) %>%
+  gather("Gender", "Salary", -classification_name)
+two.way.anova.attempt$Gender %<>% recode(HDCOACH_SALARY_MEN="Men", HDCOACH_SALARY_WOMEN="Women")
+two.way.anova.attempt
+```
+
+```{r}
+adv_aov.results <- aov(Salary ~ classification_name*Gender, data = two.way.anova.attempt)
+adv_aov.table <- adv_aov.results %>% summary()
+adv_aov.table %>% pander(style = 'rmarkdown')
+```
 # Introduction
-Data was acquired through the R package `dslabs` [@dslabs].
+<!-- %TODO Briefly give meaning to your project – what is the background and why is this project important?  (20 points) -->
+This project examines NCAA Division I athletics. We used the data from the Equity in Athletics Survey, Year 2017-2018, from the U.S. Department of Education Office of Postsecondary Education [-@EADA2018].
+
+# Hypotheses
+
+## Divisions and Profits
+
+
+## Head Coaches of Men's Teams and School Type
+<!-- %TODO Clearly state the hypotheses being tested. (20 points) -->
+<!-- Note: we need the two spaces at the end of the first line of the hypothesis test-->
+\(H_0\):  
+\(H_1\):
+
+## Head Coaches of Men's Teams and Participation
+<!-- %TODO Clearly state the hypotheses being tested. (20 points) -->
+\(H_0\):  
+\(H_1\):
+
+## Difference in Classifications
+There are 18 different classifications, including NCAA Division I-FCS, NCAA II without Football, and so forth. This question looks at the means of the profits for each classification.
+\(H_0\): \(\mu_1 = \mu_2 = \dots = \mu_{18}\)  
+\(H_1\): At least one is different
+
+## Difference in Classfications (Nonparametric)
+
+# Methods
+<!-- %TODO State and explain the methodology used to test the hypotheses.  (20 points) -->
+
+# Results
+<!-- %TODO Describe the data (1st paragraph) -->
+
+## Results of Difference in Classification
+```{r ANOVA for sectors}
+classification.results <- aov(Grand.Total.Profits ~ classification_name, data = institution_data)
+almost_sas(classification.results)
+```
+
+```{r Classification Kruskal-Wallis}
+classification_kruskal.results <- kruskal.test(Grand.Total.Profits ~ classification_name, data = institution_data)
+classification_post.hoc <- kruskalmc(Grand.Total.Profits ~ classification_name, data = institution_data)
+
+# pander(classification_post.hoc[[3]], style='rmarkdown')  # TODO: shorten table!
+```
+
+## Describing and Visualizing Head Coach data
+```{r hist of head coach, message=FALSE}
+hd.coach.salary_data <- ncaa.div.i_data %>%
+  select(sector_name, HDCOACH_SALARY_MEN)
+
+hd.coach.salary_data %>%
+  ggplot(aes(x = HDCOACH_SALARY_MEN, fill = sector_name)) +
+  geom_histogram(position = "dodge") +
+  labs(title="Histogram of NCAA Div. I Men's Head Coach Salary", x = "Salary (USD)",
+       y = "Count", fill = "School Type:") +
+  theme(
+    legend.position="bottom",
+    panel.background = element_rect(fill = 'white', color = 'grey'),
+    panel.grid.major = element_line(size = 0.25, linetype = 'solid',
+                                color = "grey"), 
+    panel.grid.minor = element_line(size = 0.1, linetype = 'solid',
+                                color = "grey")
+  )
+```
+
+```{r qq plot of Private Schools head coach}
+hd.coach.salary_data %>%
+  filter(grepl('Private', sector_name)) %>% 
+  ggplot(aes(sample = HDCOACH_SALARY_MEN)) + 
+  stat_qq() + stat_qq_line() + theme_bw()
+```
+```{r qq plot Public Schools head cach}
+hd.coach.salary_data %>%
+  filter(grepl('Public', sector_name)) %>% 
+  ggplot(aes(sample = HDCOACH_SALARY_MEN)) + 
+  stat_qq() + stat_qq_line() + theme_bw()
+```
+
+## Describing and Visualizing Participation of Men and Head Coach Salaries
+```{r scatter plot of head coach salaries}
+men.participation.data <- ncaa.div.i_data %>%
+  select(IL_PARTIC_MEN, HDCOACH_SALARY_MEN)
+
+men.participation.data %>% ggplot(aes(x=IL_PARTIC_MEN, y=HDCOACH_SALARY_MEN)) +
+  geom_point() +
+  geom_smooth(method = lm) +
+  labs(title="Scatterplot of Men's Head Coach Salary by Men Particiation Counts", x = "Count of Men Participating",
+       y = "Head Coach's Salary (USD)") +
+  theme(
+    panel.background = element_rect(fill = 'white', color = 'grey'),
+    panel.grid.major = element_line(size = 0.25, linetype = 'solid',
+                                color = "grey"), 
+    panel.grid.minor = element_line(size = 0.1, linetype = 'solid',
+                                color = "grey")
+  )
+```
+
+<!-- %TODO And analysis results (order of results should correspond to hypotheses listed).  (20 points) -->
+## Results of Head Coach data
+
+## Results of Particiption of Men and Head Coach Salaries
+
+# Conclusion
+<!-- %TODO Restate the results in terms of the larger picture; state limitations and opportunities for future research (20 points) -->
 
 ## Session Info
 ```{r Session Info}
