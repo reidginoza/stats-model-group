@@ -1,0 +1,177 @@
+---
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(EnvStats)
+library(tidyverse)
+library(stats)
+library(car)
+
+### function definition
+# This function called p.value.string creates a string
+# to be used when reporting the p-value. It includes the p on the LHS.
+# You will likely place it in $$ to get the LaTeX math formatting.
+# This should be placed in an r code chunk in the beginning of your R markdown
+# This code chunk by itself shouldn't produce any result.
+# by Reid Ginoza
+p.value.string = function(p.value){
+  p.value <- round(p.value, digits=4)
+  if (p.value == 0) {
+    return("p < 0.0001")
+  } else {
+    return(paste0("p = ", p.value))
+  }
+}
+```
+
+# Chapter 7 R Examples
+
+## Example 2
+
+Home glucose meters are not usually as accurate as laboratory measurement. Problems arise from the machines not being properly maintained and, more importantly, when the persons conducting the tests are the patients themselves, who may be quite elderly and in poor health. 
+
+In order to evaluate the variability in readings from such devices, blood samples with a glucose level of 200 mg/dL are given to 20 diabetic patients to perform a self-test for glucose level. Trained technicians using the same self-test equipment obtain readings that have a standard deviation of 5 mg/dL. The manufacturer of the equipment claims that, with minimal instruction, anyone can obtain the same level of consistency in their measurements.
+
+The readings from the 20 diabetic patients are as follows.
+
+```{r}
+x <- c(203.1, 184.5, 206.8, 211.0, 218.3, 174.2, 193.2, 201.9, 199.9, 194.3, 199.4, 193.6, 194.6, 187.2, 197.8, 184.3, 196.1, 196.4, 197.5, 187.9)
+```
+
+### A: Determine if the readings from the diabetic patients is higher than the manufacturer's claim at the $\alpha=0.05$ level. 
+
+We will construct the hypothesis test using the [`varTest` function from the `EnvStats` package](https://www.rdocumentation.org/packages/EnvStats/versions/2.3.1/topics/varTest). 
+```{r}
+one_a <- varTest(x, alternative = "greater", conf.level = 0.95, sigma.squared = 25)
+
+one_p <- p.value.string(one_a$p.value)
+```
+
+**Hypotheses**
+
+$H_0: \ \sigma \le 5$ <br> 
+$H_1: \ \sigma > 5$
+
+
+**Test Statistic**
+
+$\chi^2_0 = `r round(one_a$statistic, digits=2)`$.
+
+***p*-value**
+
+$`r one_p`$.
+
+**Rejection Region**
+
+Reject if $p < \alpha$, where $\alpha=0.05$.
+
+**Conclusion and Interpretation**
+
+Reject $H_0$. There is sufficient evidence to suggest that the variance is larger than 25 mg/dL.
+
+### B: Construct the 95% confidence interval for the variance of readings from diabetic patients.
+
+```{r}
+one_b <- varTest(x, alternative = "two.sided", conf.level = 0.95, sigma.squared = 25)
+```
+
+The 95% confidence interval for $\sigma^2$ is (`r round(one_b$conf.int, digits=2)`).
+
+Note that if we want the CI for $\sigma$, we take the $\sqrt{}$: (`r round(sqrt(one_b$conf.int), digits=2)`).
+
+## Problem 7.20
+
+A consumer-protection magazine was interested in comparing tires purchased from two different companies that each claimed their tires would last 40,000 miles. A random sample of 10 tires of each brand was obtained and tested under simulated road conditions. The number of miles until the tread thickness reached a specified depth was recorded for all tires. The data are given next (in thousands of miles).
+
+```{r}
+b1 <- c(38.9, 39.7, 42.3, 39.5, 39.6, 35.6, 36.0, 39.2, 37.6, 39.5)
+b2 <- c(44.6, 46.9, 48.7, 41.5, 37.5, 33.1, 43.4, 36.5, 32.5, 42.0)
+```
+
+### A: Determine if the variances can be assumed equal at the $\alpha=0.05$ level. 
+
+We will construct the hypothesis test using the [`var.test` function from the `stats` package](https://www.rdocumentation.org/packages/stats/versions/3.6.1/topics/var.test). 
+```{r}
+two_a <- var.test(b1, b2, alternative = "two.sided", conf.level = 0.95, ratio = 1)
+
+two_p <- p.value.string(two_a$p.value)
+```
+
+**Hypotheses**
+
+$H_0: \ \sigma_1^2 = \sigma_2^2$ <br> 
+$H_1: \ \sigma_1^2 \ne \sigma^2_2$
+
+
+**Test Statistic**
+
+$F_0 = `r round(two_a$statistic, digits=2)`$.
+
+***p*-value**
+
+$`r two_p`$.
+
+**Rejection Region**
+
+Reject if $p < \alpha$, where $\alpha=0.05$.
+
+**Conclusion and Interpretation**
+
+Reject $H_0$. There is sufficient evidence to suggest that the variances are different between the two brands.
+
+### B: Construct the 95% confidence interval on the ratio of variances 
+
+The 95% confidence interval for $\frac{\sigma^2_1}{\sigma^2_2}$ is (`r round(two_a$conf.int, digits=2)`).
+
+Note that if we want the CI for $\frac{\sigma_1}{\sigma_2}$, we take the $\sqrt{}$: (`r round(sqrt(two_a$conf.int), digits=2)`).
+
+## Example 8
+
+Three different additives that are marketed for increasing the miles per gallon (mpg) for automobiles were evaluated by a consumer testing agency. Past studies have shown an average increase of 8% in mpg for economy automobiles after using the product for 250 miles. The testing agency wants to evaluate the variability in the increase in mileage over a variety of brands of cars within the economy class. The agency randomly selected 30 economy cars of similar age, number of miles on their odometer, and overall condition of the power train to be used in the study. It then randomly assigned 10 cars to each additive. The percentage increase in mpg obtained by each car was recorded for a 250-mile test drive. The testing agency wanted to evaluate whether there was a difference between the three additives with respect to their variability in the increase in mpg. The data are as follows. 
+
+```{r}
+additive <- c(rep(1, 10), rep(2, 10), rep(3, 10))
+mpg <- c(4.2,  2.9, 0.2, 25.7,  6.3,  7.2,  2.3, 9.9, 5.3,  6.5,
+         0.2, 11.3, 0.3, 17.1, 51.0, 10.1,  0.3, 0.6, 7.9,  7.2,
+         7.2,  6.4, 9.9,  3.5, 10.6, 10.8, 10.6, 8.4, 6.0, 11.9)
+three <- tibble(additive, mpg)
+```
+
+Use the BFL to determine if there is a difference among the variances at the $\alpha=0.05$ level.
+
+We will construct the hypothesis test using the [`leveneTest` function from the `car` package](https://www.rdocumentation.org/packages/car/versions/3.0-3/topics/leveneTest). 
+
+```{r}
+three_a <- leveneTest(mpg ~ as.factor(additive), data = three, center = median)
+
+three_p <- p.value.string(three_a$"Pr(>F)"[1])
+```
+
+**Hypotheses**
+
+$H_0: \ \sigma_1^2 = \sigma_2^2 = \sigma^2_3$ <br> 
+$H_1:$ at least one is different
+
+
+**Test Statistic**
+
+$F_0 = `r round(three_a$"F value"[1],digits=2)`$.
+
+***p*-value**
+
+$`r three_p`$.
+
+**Rejection Region**
+
+Reject if $p < \alpha$, where $\alpha=0.05$.
+
+**Conclusion and Interpretation**
+
+Fail to reject $H_0$. There is not sufficient evidence to suggest that the variances are unequal.
+
+
+
+
+

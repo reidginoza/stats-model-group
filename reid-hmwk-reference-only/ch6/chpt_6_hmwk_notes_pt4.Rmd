@@ -1,0 +1,146 @@
+---
+title: "Chpt 6 Part 4"
+author: "Reid Ginoza"
+date: "9/29/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(stats)
+library(infer)
+library(groupedstats)
+library(knitr)
+library(kableExtra)
+```
+
+```{r Support Functions}
+### Support Functions ###
+
+# Makes the ranking look nice. Returns integers unless there's a decimal.
+# Will be applied element-wise using lapply(). (Not a vector function ie. with apply())
+rank_round = function(x){
+  if (x %% 1 == 0) {
+    return(round(x, digits = 0))
+  } else {
+    return(round(x, digits = 1))
+  }
+}
+
+### p.value.string v2
+# Update v2: added the formatting that turns of scientific notation
+# fixes the case when p = 0.0001 (instead of p=1e-4)
+# This function called p.value.string creates a string
+# to be used when reporting the p-value. It includes the p on the LHS.
+# You will likely place it in $$ to get the LaTeX math formatting.
+# This should be placed in an r code chunk in the beginning of your R markdown
+# This code chunk by itself shouldn't produce any result.
+# by Reid Ginoza
+
+p.value.string = function(p.value){
+  p.value <- round(p.value, digits=4)
+  if (p.value == 0) {
+    return("p < 0.0001")
+  } else {
+    return(paste0("p = ", format(p.value, scientific = F)))
+  }
+}
+```
+
+## 4. Data from problem 6.64 (page 360)
+Damages (in hundreds of dollars) in SUVs and midsize cars.
+
+```{r}
+damage_data <- as_tibble(read_csv('6_64.csv', col_names = TRUE, col_types='idd'))
+damage_data %>% gather("Type", "Damage", -Car) %>% select(-Car) -> damage_data
+
+# gather() has been superceded by pivot_longer() in tidyr 1.0.0, but we're using tidyr 0.8.3
+# damage_data %>% pivot_longer(-Car, names_to = "Type", values_to = "Damage") -> damage_data
+```
+
+### (a) Is this independent or paired data? Why?
+This data is independent because the SUVs chosen have no relationship with the midsize cars chosen.
+
+### (b) Which nonparametric test would be appropriate to compare the two groups?
+Since the data is independent, the Wilcoxon Rank Sum test is appropriate.
+
+### (c) Rank the data as needed for the test specified in part (b).
+Display your ranks (and signs, if necessary) using a table.
+
+```{r damage ranks}
+damage_data %>% mutate(Rank = rank(Damage, na.last = "na", ties.method = "average")) -> damage_data
+
+damage_data %>% filter(Type == 'SUV') %>% kable(align ='lrr',format.args = list(trim = TRUE)) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"),
+                full_width = F,
+                font_size = 14,
+                position = "left")
+
+damage_data %>% filter(Type == 'Midsize') %>% kable(align ='lrr',format.args = list(trim = TRUE)) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"),
+                full_width = F,
+                font_size = 14,
+                position = "left")
+```
+
+
+### (d) Find the median and IQR of the data, either split by car type or as the difference between car types.
+```{r damage median and IQR}
+(damage_data %>% group_by(Type) %>% summarise(Median = median(Damage), IQR = IQR(Damage)) -> damage_summary) %>%
+  kable(align = 'lrr',format.args = list(trim = TRUE)) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"),
+                full_width = F,
+                font_size = 14,
+                position = "left")
+```
+
+The median (IQR) damage for Midsize cars is `r damage_summary$Median[1]` (`r damage_summary$IQR[1]`) hundreds of dollars.<br>
+The median (IQR) damage for SUVs is `r damage_summary$Median[2]` (`r damage_summary$IQR[2]`) hundreds of dollars.
+
+### (e) Formally test to determine if there is a difference in the distribution of cost for repairs for cars and SUVs.
+Use the appropriate nonparametric test (that was specified in part (b)) at the α = 0.05 level.
+
+```{r damage wilcoxon test}
+damage_wilcoxon_h.test <- wilcox.test(Damage ~ Type, alternative = 'two.sided', data = damage_data, paired = FALSE)
+damage_wilcoxon_p.value <- damage_wilcoxon_h.test$p.value %>% p.value.string
+```
+
+**Hypotheses**<br>
+$H_0: M_S = M_m$<br>
+$H_1: M_S \neq M_m$
+
+**Test Statistics**<br>
+$W=`r damage_wilcoxon_h.test$statistic`$
+
+**$p$-value$$**<br>
+$`r damage_wilcoxon_p.value`$
+
+**Rejection Region**<br>
+Reject $H_0$ if $p<\alpha$, where $\alpha = 0.05$.
+
+**Conclusion**<br>
+Reject $H_0$. There is not sufficient evidence to suggest that there is a difference in costs for the repairs of cars and SUVs.
+
+### (f) Did we need to use a nonparametric test here? Justify your answer.
+If we had approximately normally distributed data, we would be able to use the $t$-test.
+
+
+```{r qqplots for damage}
+damage_car_qq.plot <- damage_data %>% filter(Type == 'Midsize') %>% ggplot(aes(sample = Damage)) +
+        stat_qq() + 
+        stat_qq_line() +
+        theme_bw() +
+        labs(title = 'QQ Plot: Damage Costs for Midsize Cars')
+
+damage_suv_qq.plot <- damage_data %>% filter(Type == 'SUV') %>% ggplot(aes(sample = Damage)) +
+        stat_qq() + 
+        stat_qq_line() +
+        theme_bw() +
+        labs(title = 'QQ Plot: Damage Costs for SUVs')
+
+damage_car_qq.plot
+damage_suv_qq.plot
+```
+
+The qq plot for the mid-size cars looks approximately normal except for the one data point to the right that looks like an outlier. The qq plot for the SUVs, however, looks less normal and possibly skewed to the right. Because of this, one should not assume normality of the data, and a nonparametric test is appropriate.

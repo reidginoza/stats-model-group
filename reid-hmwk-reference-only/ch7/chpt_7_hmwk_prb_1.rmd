@@ -1,0 +1,93 @@
+---
+title: "Chapter 7 Homework"
+author: "Reid Ginoza"
+date: "10/10/2019"
+output: html_document
+---
+  
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
+library(tidyverse)
+library(EnvStats)
+library(stats)
+library(car)
+library(knitr)
+library(kableExtra)
+```
+
+```{r Support Functions}
+### p.value.string v2
+# Update v2: added the formatting that turns of scientific notation
+# fixes the case when p = 0.0001 (instead of p=1e-4)
+# This function called p.value.string creates a string
+# to be used when reporting the p-value. It includes the p on the LHS.
+# You will likely place it in $$ to get the LaTeX math formatting.
+# This should be placed in an r code chunk in the beginning of your R markdown
+# This code chunk by itself shouldn't produce any result.
+# by Reid Ginoza
+
+p.value.string = function(p.value){
+  p.value <- round(p.value, digits = 4)
+  if (p.value == 0) {
+    return("p < 0.0001")
+  } else {
+    return(paste0("p = ", format(p.value, scientific = F)))
+  }
+}
+```
+
+# Chapter 7 Homework
+## 1. Data from Problem 7.5
+Amount of juice in 24 containers.
+
+* $n=24$
+* $\mu = 64.3$
+* $\sigma_0 = 0.15$
+
+```{r Import Juice Data}
+juice_data <- as_tibble(read_csv("ex7-5.csv", col_names = TRUE, col_types = 'd'))
+```
+
+### (a) Find the mean and standard deviation of the data
+```{r Juice Mean and SD}
+mean_juice <- round(mean(juice_data$ounces), digits = 2)
+sd_juice <- round(sd(juice_data$ounces), digits = 2)
+```
+
+The mean (standard deviation) of amount of juice is `r mean_juice` (`r sd_juice`) ounces.
+
+### (b)  Formally test to determine if the process standard deviation is greater than 0.15 ounces at the α=0.10 level.
+
+```{r Juice Hypothesis Test}
+juice_h.test <- varTest(juice_data$ounces, alternative = "greater", conf.level = 0.90, sigma.squared = 0.15^2)
+juice_p.value <- juice_h.test$p.value %>% p.value.string
+```
+
+**Hypotheses**<br>
+$H_0: \sigma \le 0.15$<br>
+$H_1: \sigma > 0.15$
+
+**Test Statistic**<br>
+$\chi^2_0 = `r round(juice_h.test$statistic, digits = 2)`$
+
+**$p$-value**<br>
+$`r juice_p.value`$
+
+**Rejection Region**<br>
+Reject $H_0$ if $p<\alpha$, where $\alpha = 0.10$.
+
+**Conclusion**<br>
+Reject $H_0$. There is sufficent evidence to suggest that there are have too many underfilled and overfilled containers orange juice containers.
+
+### (c)  Construct the 90% confidence interval for σ.
+```{r Juice Confidence Interval}
+juice_h.test_two.sided <- varTest(juice_data$ounces, alternative = "two.sided", conf.level = 0.90, sigma.squared = 0.15^2)
+juice_ci_sd <- round(sqrt(juice_h.test_two.sided$conf.int), digits = 2)
+```
+
+The confidence interval for the orange juice process standard deviation $\sigma$ is (`r juice_ci_sd`).
+
+## Session Info
+```{r}
+sessionInfo()
+```

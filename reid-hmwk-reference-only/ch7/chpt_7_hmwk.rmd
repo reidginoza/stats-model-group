@@ -1,0 +1,207 @@
+---
+title: "Chapter 7 Homework"
+author: "Reid Ginoza"
+date: "10/10/2019"
+output: html_document
+---
+  
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
+library(tidyverse)
+library(EnvStats)
+library(stats)
+library(car)
+library(knitr)
+library(kableExtra)
+```
+
+```{r Support Functions}
+### p.value.string v2
+# Update v2: added the formatting that turns of scientific notation
+# fixes the case when p = 0.0001 (instead of p=1e-4)
+# This function called p.value.string creates a string
+# to be used when reporting the p-value. It includes the p on the LHS.
+# You will likely place it in $$ to get the LaTeX math formatting.
+# This should be placed in an r code chunk in the beginning of your R markdown
+# This code chunk by itself shouldn't produce any result.
+# by Reid Ginoza
+
+p.value.string = function(p.value){
+  p.value <- round(p.value, digits = 4)
+  if (p.value == 0) {
+    return("p < 0.0001")
+  } else {
+    return(paste0("p = ", format(p.value, scientific = F)))
+  }
+}
+```
+
+# Chapter 7 Homework
+
+## 1. Data from Problem 7.5
+Amount of juice in 24 containers.
+
+* $n=24$
+* $\mu = 64.3$
+* $\sigma_0 = 0.15$
+
+```{r Import Juice Data}
+juice_data <- as_tibble(read_csv("ex7-5.csv", col_names = TRUE, col_types = 'd'))
+```
+
+### (a) Find the mean and standard deviation of the data
+```{r Juice Mean and SD}
+mean_juice <- round(mean(juice_data$ounces), digits = 2)
+sd_juice <- round(sd(juice_data$ounces), digits = 2)
+```
+
+The mean (standard deviation) of the amount of juice in a container is `r mean_juice` (`r sd_juice`) ounces.
+
+### (b)  Formally test to determine if the process standard deviation is greater than 0.15 ounces at the α=0.10 level.
+
+```{r Juice Hypothesis Test}
+juice_h.test <- varTest(juice_data$ounces, alternative = "greater", conf.level = 0.90, sigma.squared = 0.15^2)
+juice_p.value <- juice_h.test$p.value %>% p.value.string
+```
+
+**Hypotheses**<br>
+$H_0: \sigma \le 0.15$<br>
+$H_1: \sigma > 0.15$
+
+**Test Statistic**<br>
+$\chi^2_0 = `r round(juice_h.test$statistic, digits = 2)`$
+
+**$p$-value**<br>
+$`r juice_p.value`$
+
+**Rejection Region**<br>
+Reject $H_0$ if $p<\alpha$, where $\alpha = 0.10$.
+
+**Conclusion**<br>
+Reject $H_0$. There is sufficent evidence to suggest that there are too many underfilled and overfilled containers orange juice containers.
+
+### (c)  Construct the 90% confidence interval for σ.
+```{r Juice Confidence Interval}
+juice_h.test_two.sided <- varTest(juice_data$ounces, alternative = "two.sided", conf.level = 0.90, sigma.squared = 0.15^2)
+juice_ci_sd <- round(sqrt(juice_h.test_two.sided$conf.int), digits = 2)
+```
+
+The confidence interval for the orange juice process standard deviation $\sigma$ is (`r juice_ci_sd`).
+
+## 2. Data from Problem 7.20
+```{r Import Tire Data}
+tire_data <- as_tibble(read_csv("ex7-20.csv", col_names = TRUE, col_types = 'dd')) %>% gather('Brand', 'Distance')
+```
+
+### (a)  Find the mean and standard deviation of the data, split by brand.
+```{r Tire Mean and SD}
+tire_summary <- tire_data %>% group_by(Brand) %>% summarise(Mean = mean(Distance), SD = round(sd(Distance), digits = 3))
+tire_summary %>% select(Brand, Mean, SD) %>% kable(align ='lrr',format.args = list(trim = TRUE)) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"),
+                full_width = F,
+                font_size = 14,
+                position = "left")
+```
+
+The mean (standard deviation) of the distance of Brand I tires is `r tire_summary %>% filter(Brand == 'Brand I') %>% select(Mean)` (`r tire_summary %>% filter(Brand == 'Brand I') %>% select(SD)`) thousands of miles.<br>
+The mean (standard deviation) of the distance of Brand II tires is `r tire_summary %>% filter(Brand == 'Brand II') %>% select(Mean)` (`r tire_summary %>% filter(Brand == 'Brand II') %>% select(SD)`) thousands of miles.
+
+### (b)  Formally  test  to  determine  if  there  is  a  difference  between  the  standard  deviations  of  the  two brands at the α=0.01 level.
+
+```{r Tires Hypothesis Test}
+tires_h.test <- var.test((tire_data %>% filter(Brand == 'Brand I'))$Distance, (tire_data %>% filter(Brand == 'Brand II'))$Distance, alternative = "two.sided", conf.level = 0.99, ratio = 1)
+
+tires_p.value <- tires_h.test$p.value %>% p.value.string
+```
+
+**Hypotheses**<br>
+$H_0: \sigma_I = \sigma_{II}$<br>
+$H_1: \sigma_I \ne \sigma_{II}$
+
+**Test Statistic**<br>
+$F_0=`r tires_h.test$statistic`$
+
+**$p$-value**<br>
+$`r tires_p.value`$
+
+**Rejection Region**<br>
+Reject $H_0$ if $p<\alpha$, where $\alpha = 0.01$.
+
+**Conclusion**<br>
+Reject $H_0$. There is sufficient evidence to suggest that the standard deviation of the Brand II tires is different from the standard deviation of Brand I tires.
+
+### (c)  Construct the 99% confidence interval for $\frac{\sigma_I}{\sigma_{II}}$.
+```{r Tires Confidence Interval}
+tires_sd_conf.int <- round(sqrt(tires_h.test$conf.int), digits = 2)
+```
+
+The 99% confidence interval for the ratio $\frac{\sigma_I}{\sigma_{II}}$ is (`r tires_sd_conf.int`).
+
+### (d)  If  we  were  to  go  on  and  test  the  means  of  the  two  brands,  would  we  use  the  pooled $t$-test  or Satterthwaite’s?  Why?
+We would use Satterthwaite's approximation for the $t$-test, which allows for populations that do not have the same variance/standard deviation, and we just arrived at the conclusion that the two population standard deviations are not equal.
+
+## 3. Data from Problem 7.29
+```{r Import Oven Data}
+oven_data <- as_tibble(read_csv("ex7-29.csv", col_names = TRUE, col_types = 'ddd')) %>% gather('Oven', 'Temperature')
+```
+
+### (a)  Find the mean and standard deviation, split by oven.
+```{r Oven Mean and SD}
+oven_summary <- oven_data %>% group_by(Oven) %>% summarize(Mean = round(mean(Temperature), digits = 2), SD = round(sd(Temperature), digits = 2))
+oven_summary %>% select(Oven, Mean, SD) %>% kable(align ='lrr',format.args = list(trim = TRUE)) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"),
+                full_width = F,
+                font_size = 14,
+                position = "left")
+```
+
+The mean (standard deviation) temperature of Oven I is  `r oven_summary %>% filter(Oven == 'Oven1') %>% select(Mean)` (`r oven_summary %>% filter(Oven == 'Oven1') %>% select(SD)`).<br>
+The mean (standard deviation) temperature of Oven II is  `r oven_summary %>% filter(Oven == 'Oven2') %>% select(Mean)` (`r oven_summary %>% filter(Oven == 'Oven2') %>% select(SD)`).<br>
+The mean (standard deviation) temperature of Oven III is  `r oven_summary %>% filter(Oven == 'Oven3') %>% select(Mean)` (`r oven_summary %>% filter(Oven == 'Oven3') %>% select(SD)`).
+
+### (b)  Formally test to determine if there is a difference between the standard deviations at the α=0.05 level.
+```{r Over Hypothesis Test}
+oven_h.test <- leveneTest(Temperature ~ Oven, data = oven_data, center = median)
+oven_p.value <- p.value.string(oven_h.test$"Pr(>F)"[1])
+```
+
+**Hypotheses**<br>
+$H_0: \sigma_I = \sigma_{II} = \sigma_{III}$<br>
+$H_1:$ At least one is different
+
+**Test Statistic**<br>
+$F_0 = `r oven_h.test$F[1]`$
+
+**$p$-value**<br>
+$`r oven_p.value`$
+
+**Rejection Region**<br>
+Reject $H_0$ if $p<\alpha$, where $\alpha=0.05$.
+
+**Conclusion**<br>
+Reject $H_0$. There is sufficient evidence to suggest that at least one of the standard deviations is different from the others.
+
+### (c)  Find the 95% CI for the σ of each oven.
+```{r Oven Individual CIs}
+oven1_ci <- round(sqrt(varTest((oven_data %>% filter(Oven == 'Oven1'))$Temperature, alternative = "two.sided", conf.level = 0.95)$conf.int), digits = 2)
+oven2_ci <- round(sqrt(varTest((oven_data %>% filter(Oven == 'Oven2'))$Temperature, alternative = "two.sided", conf.level = 0.95)$conf.int), digits = 2)
+oven3_ci <- round(sqrt(varTest((oven_data %>% filter(Oven == 'Oven3'))$Temperature, alternative = "two.sided", conf.level = 0.95)$conf.int), digits = 2)
+```
+
+| Oven      | 95% Confidence Interval for $\sigma$|
+| ----------- | ----------- |
+| Oven 1  | $(`r oven1_ci`)$ |
+| Oven 2  | $(`r oven2_ci`)$ |
+| Oven 3  | $(`r oven3_ci`)$ |
+
+
+### (d)  Do the CIs in part (c) match your hypothesis test results in part (a)?  Why or why not?
+Yes, my confidence intervals agree with my results. Oven 3's interval does not overlap with either of the other two, so it makes sense the 
+
+### (e)  Do you see any potential issues with making the comparison requested in part (d)?
+Not for this problem. Even before the 95% confidence intervals for the standard deviations were calculated, the sample standard deviation for Oven 3 was much higher than that of Oven 1 and Oven 2. Perhaps if the Oven 3 confidence interval overlapped with that of Oven 2, there would be a concern.
+
+## Session Info
+```{r}
+sessionInfo()
+```

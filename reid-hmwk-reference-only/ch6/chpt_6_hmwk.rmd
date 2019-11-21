@@ -1,0 +1,420 @@
+---
+title: "Chapter 6 Homework"
+author: "Reid Ginoza"
+date: "10/3/2019"
+output: html_document
+---
+  
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
+library(tidyverse)
+library(stats)
+library(infer)
+library(groupedstats)
+library(knitr)
+library(kableExtra)
+```
+
+```{r Support Functions}
+# Makes the ranking look nice. Returns integers unless there's a decimal.
+# Will be applied element-wise using lapply(). (Not a vector function ie. with apply())
+rank_round = function(x){
+  if (x %% 1 == 0) {
+    return(round(x, digits = 0))
+  } else {
+    return(round(x, digits = 1))
+  }
+}
+
+### p.value.string v2
+# Update v2: added the formatting that turns of scientific notation
+# fixes the case when p = 0.0001 (instead of p=1e-4)
+# This function called p.value.string creates a string
+# to be used when reporting the p-value. It includes the p on the LHS.
+# You will likely place it in $$ to get the LaTeX math formatting.
+# This should be placed in an r code chunk in the beginning of your R markdown
+# This code chunk by itself shouldn't produce any result.
+# by Reid Ginoza
+
+p.value.string = function(p.value){
+  p.value <- round(p.value, digits=4)
+  if (p.value == 0) {
+    return("p < 0.0001")
+  } else {
+    return(paste0("p = ", format(p.value, scientific = F)))
+  }
+}
+```
+
+# Chapter 6 Homework
+
+## 1. Data from Problem 6.42
+Lung capacity of rats before and after exposure to ozone.
+
+```{r}
+rat_lung_data <- as_tibble(read_csv("./6_42.csv", col_names = TRUE, col_types = 'idd'))
+```
+
+### (a) Is this independent or paired data? Why?
+This is paired data because the same rat is measured twice, once in the Before group and once in the After group.
+
+### (b) Which nonparametric test would be appropriate to compare the two groups?
+Since the data is paired, I will use the Wilcoxon signed-rank test.
+
+### (c) Find the median and IQR of the data, either split by exposure or as the difference between the time points.
+Since I'm using the Wilcoxon signed-rank test, I will use the difference.
+
+```{r}
+rat_lung_data$Difference <- round(rat_lung_data$Before - rat_lung_data$After, digits = 1)
+# I rounded the difference since the data only had one decimal place.
+difference_median <- median(rat_lung_data$Difference)
+difference_iqr <- IQR(rat_lung_data$Difference)
+```
+
+The median (IQR) of the difference in rat lung capacity before and after ozone exposure is `r difference_median` (`r difference_iqr`) mL.
+
+### (d) Rank the data as needed for the test you specified in part (b).
+Display your ranks (and signs, if necessary) using a table.
+
+```{r}
+my.sign = function(x){
+  if (x > 0) {
+    return("plus")
+  } else {
+    return("minus")
+  }
+}
+
+rat_lung_data$Ranking <- lapply(rank(abs(rat_lung_data$Difference), na.last = "na", ties.method = "average"), rank_round)
+rat_lung_data$Sign <- lapply(rat_lung_data$Difference, my.sign)
+
+kable(rat_lung_data[c('Rat', 'Difference', 'Ranking', 'Sign')], align ='lrr',format.args = list(trim = TRUE)) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"),
+                full_width = F,
+                font_size = 14,
+                position = "left")
+```
+
+### (e) Formally test to determine if there is a difference in the distribution of lung capacity in the rats before and after exposure.
+Use the appropriate nonparametric test (that was specified in part (b)) at the α = 0.05 level.
+
+**Hypotheses**  
+$H_0: M_b = M_a$  
+$H_1: M_b \neq M_a$
+
+**Test Statistic**
+```{r}
+rats_wilcox <- wilcox.test(rat_lung_data$Before, rat_lung_data$After, alternative = 'two', paired = TRUE)
+
+rats_p.string <- p.value.string(rats_wilcox$p.value)
+```
+
+$W = `r rats_wilcox$statistic`$
+
+**$p$-value**  
+$`r rats_p.string`$.
+
+**Rejection Region**  
+Reject $H_0$ if $p < \alpha$, where $\alpha = 0.05$.
+
+**Conclusion**  
+Reject $H_0$. There is sufficient evidence to suggest that the rat lung capacity changes after ozone exposure.
+
+### (f) Did we need to use a nonparametric test here? Justify your answer.
+A paired $t$-test may be used if the two samples, Before and After, are approximately normal. To check this, we can view the qq plots of each sample.
+```{r}
+plot1 <- ggplot(rat_lung_data, aes(sample = rat_lung_data$Before)) +
+        stat_qq() + 
+        stat_qq_line() +
+        theme_bw() +
+        labs(title = 'QQ Plot: Lung Capacity Before Exposure')
+
+plot2 <- ggplot(rat_lung_data, aes(sample = rat_lung_data$After)) +
+        stat_qq() + 
+        stat_qq_line() +
+        theme_bw() +
+        labs(title = 'QQ Plot: Lung Capacity After Exposure')
+plot1
+plot2
+```
+
+Both qq plots of the data look like they closely match the theoretical line. The plot of the After data does seem to have the two end data points further away from the line, but since it's only two points, the $t$-test may still have had more power than the nonparametric Wilcoxon Signed-Rank test.
+
+## 2. Data from problem 6.55 (page 358)
+Candidates spending grouped by gender.
+```{r}
+# Data provided with the following Columns: Candidate, Male, Female
+# Untidy data since each row contains a male candidate and a female candidate, which should be separated
+candidate_spending_data <- as_tibble(read_csv("6_55.csv", col_names = TRUE, col_types = 'iii'))
+candidate_spending_data %<>% gather("Gender", "Spending", -Candidate) %>% select(-Candidate)
+```
+
+### (a) Is this independent or paired data? Why?
+This data is independent. There is no relationship between any of the male candidates and any of the female candidates. Each candidate is their own case, so it makes sense to rearrange the data to have two columns, gender and spending, and we'll end up with 40 rows.
+
+### (b) Which t-test would be appropriate to compare the two groups?
+Since the data are independent, we will use the independent samples $t$-test. To determine which $t$-test, equal variances or unequal variances, we examine the sample variances to see if we can assume the population variances are equal.
+
+```{r}
+candidate_spending_data %>% group_by(Gender) %>% summarize(Mean = round(mean(Spending), digits = 2), SD = round(sd(Spending), digits = 2)) -> candidate_spending_summary
+candidate_spending_summary %>% select(Gender, SD) %>% kable(align ='lr',format.args = list(trim = TRUE)) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"),
+                full_width = F,
+                font_size = 14,
+                position = "left")
+```
+
+The sample standard deviation of the female group, $s_f$ is `r candidate_spending_summary %>% filter(Gender == 'Female') %>% pull(SD)`, and the sample standard deviation of the male group, $s_m$ is `r candidate_spending_summary %>% filter(Gender == 'Male') %>% pull(SD)`. We can say that the population variances are not equal if $s_m > 2s_f$, but this is not the case, so we can reasonably continue on the assumption that the population variances for the female and male candidate populations are equal, ie. assume $\sigma_f^2 = \sigma_m^2$ and use the equal variances $t$-test for independent samples.
+
+### (c) Find the mean and standard deviation of the data, either split by sex or as the difference between the sexes.
+(Note: the t-test you pick in part (b) will determine if you need to split or take the difference.)
+
+
+
+```{r}
+candidate_spending_summary %>% select(Gender, Mean, SD) %>% kable(align ='lrr',format.args = list(trim = TRUE)) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"),
+                full_width = F,
+                font_size = 14,
+                position = "left")
+```
+
+The mean (sd) of the female candidate spending is `r candidate_spending_summary %>% filter(Gender == 'Female') %>% pull(Mean)` (`r candidate_spending_summary %>% filter(Gender == 'Female') %>% pull(SD)`) thousands of dollars.  
+The mean (sd) of the male candidate spending is `r candidate_spending_summary %>% filter(Gender == 'Male') %>% pull(Mean)` (`r candidate_spending_summary %>% filter(Gender == 'Male') %>% pull(SD)`) thousands of dollars.
+
+### (d) Formally test to determine if the mean spending for males is greater than that of females. Use the appropriate version of the t-test with the critical at the α = 0.01 level.
+```{r}
+male_spending <- candidate_spending_data %>% filter(Gender == "Male")
+female_spending <- candidate_spending_data %>% filter(Gender == "Female")
+
+spending_t.output <- t.test(x = male_spending$Spending, y= female_spending$Spending, alternative="greater", mu = 0)
+spending_t.output$p.value %>% p.value.string -> spending_p.value
+```
+
+**Hypotheses**<br>
+$H_0: \mu_M \le \mu_F$<br>
+$H_1: \mu_M > \mu_F$
+
+**Test Statistic**<br>
+$t_0 = `r spending_t.output$statistic`$<br>
+
+**$p$-value**<br>
+$`r spending_p.value`$
+
+**Rejection Region**  
+Reject $H_0$ if $p < \alpha$, where $\alpha = 0.01$.
+
+**Conclusion**  
+Reject $H_0$. There is sufficient evidence to suggest that male candidates spend more than female candidates.
+
+### (e) Construct the 99% confidence interval for µM − µF.
+```{r}
+spending.two.sided_t.output <- t.test(x = male_spending$Spending, y= female_spending$Spending, alternative="two.sided", mu = 0, conf.level = 0.99)
+```
+
+The 99% confidence interval for $\mu_M - \mu_F$ is (`r spending.two.sided_t.output$conf.int`).
+
+### (f) Is the t-test appropriate here? Justify your answer.
+The $t$-test assumes that the samples are normally distributed. The qq-plots are shown below.
+
+```{r qqplots for candidate spending}
+candidates_female_qq.plot <- female_spending %>% ggplot(aes(sample = Spending)) +
+        stat_qq() + 
+        stat_qq_line() +
+        theme_bw() +
+        labs(title = 'QQ Plot: Female Candidate Spending')
+
+candidates_male_qq.plot <- male_spending %>% ggplot(aes(sample = Spending)) +
+        stat_qq() + 
+        stat_qq_line() +
+        theme_bw() +
+        labs(title = 'QQ Plot: Male Candidate Spending')
+
+candidates_female_qq.plot
+candidates_male_qq.plot
+```
+
+Based on the qq-plots, it appears that both the female candidate spending and the male candidate spending are normally distributed. A $t$-test is a valid decision. In addition, the samples are independent and the population variances are assumed to be equal, as mentioned in parts (a) and (b) respectively, making the independent samples $t$-test a valid choice.
+
+## 3. Data from problem 6.57 (page 359)
+Soil pH levels at 15 locations before and after mining.
+```{r Problem 3 load data}
+soil_ph_data <- as_tibble(read_csv("6_57.csv", col_names = TRUE, col_types = 'idd'))
+```
+
+### (a) Is this independent or paired data? Why?
+This data is paired since the same location is measured twice, once in the "Before" group and once in the "After" group.
+
+### (b) Which $t$-test would be appropriate to compare the two groups?
+Since the data is paired, we will use the paired $t$-test.
+
+### (c) Find the mean and standard deviation of the data, either split by before and after mining or as the difference between before and after mining.
+In the paired $t$-test, we use the difference between the before and after measurements for each location.
+
+```{r Soil Difference between Before and After}
+soil_ph_data$Difference <- soil_ph_data$Before - soil_ph_data$After
+soil_diff.mean <- round(mean(soil_ph_data$Difference), digits = 2)
+soil_diff.sd <- round(sd(soil_ph_data$Difference), digits = 2)
+```
+
+The mean (sd) of the difference between before and after mining pH level is `r soil_diff.mean` (`r soil_diff.sd`).
+
+### (d) Formally test to determine if the mean pH level is different after strip-mining. Use the appropriate version of the t-test at the α = 0.05 level.
+
+```{r Soil t-test}
+soil_t.test <- t.test(soil_ph_data$Before, soil_ph_data$After, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+# soil_ph_data %>% pull(Difference) %>% t.test(mu=0, alternative="two.sided") -> soil_t.test2 # using pipe operator
+
+soil_t.test$p.value %>% p.value.string -> soil_p.value
+```
+
+**Hypotheses**  
+$H_0: \mu_a = \mu_b$
+$H_1: \mu_a \ne \mu_b$
+
+**Test Statistic**  
+$t_0 = `r soil_t.test$statistic`$  
+$`r soil_p.value`$
+
+**Rejection Region**  
+Reject $H_0$ if $p<\alpha$, where $\alpha=0.05$.
+
+**Conclusion**  
+Reject $H_0$. There is sufficient evidence to suggest that the strip-mining for coal changed the pH level of the soil.
+
+### (e) Construct the 95% confidence interval for µB − µA.
+The 95% confidence interval for the difference of mean pH level is (`r soil_t.test$conf.int`).
+
+### (f) Is the t-test appropriate here? Justify your answer.
+A paired $t$-test requires the two samples to be approximately normal. Here is the qq-plot for the difference between the two groups:
+
+```{r Soil Before and After qqplot}
+soil.before_qq.plot <- soil_ph_data %>% ggplot(aes(sample = Before)) +
+        stat_qq() + 
+        stat_qq_line() +
+        theme_bw() +
+        ggtitle('Quantile-Quantile Plot of pH Level Before')
+soil.before_qq.plot
+
+soil.after_qq.plot <- soil_ph_data %>% ggplot(aes(sample = After)) +
+        stat_qq() + 
+        stat_qq_line() +
+        theme_bw() +
+        ggtitle('Quantile-Quantile Plot of pH Level After')
+soil.after_qq.plot
+```
+
+For both samples, the data points fall near the line, except at the tails, and the samples are approximately normal. This then implies that the difference between the two samples are approximately normal, which we can also visually inspect with a qq plot of the difference. The difference is also approximately normal, so the normality assumptions are satisfied for the paired $t$-test.
+
+```{r Soil Difference qqplot}
+soil.difference_qq.plot <- soil_ph_data %>% ggplot(aes(sample = Difference)) +
+        stat_qq() + 
+        stat_qq_line() +
+        theme_bw() +
+        ggtitle('Quantile-Quantile Plot of pH Level Difference')
+soil.difference_qq.plot
+```
+
+The samples from the different locations are also independent. So the $t$-test is an appropriate test. Also, the sample size is small, $n<30$, so a $z$-test on the difference would not make sense.
+
+## 4. Data from problem 6.64 (page 360)
+Damages (in hundreds of dollars) in SUVs and midsize cars.
+
+```{r}
+damage_data <- as_tibble(read_csv('6_64.csv', col_names = TRUE, col_types='idd'))
+damage_data %>% gather("Type", "Damage", -Car) %>% select(-Car) -> damage_data
+
+# gather() has been superceded by pivot_longer() in tidyr 1.0.0, but we're using tidyr 0.8.3
+# damage_data %>% pivot_longer(-Car, names_to = "Type", values_to = "Damage") -> damage_data
+```
+
+### (a) Is this independent or paired data? Why?
+This data is independent because the SUVs chosen have no relationship with the midsize cars chosen.
+
+### (b) Which nonparametric test would be appropriate to compare the two groups?
+Since the data is independent, the Wilcoxon Rank Sum test is appropriate.
+
+### (c) Rank the data as needed for the test specified in part (b).
+Display your ranks (and signs, if necessary) using a table.
+
+```{r damage ranks}
+damage_data %>% mutate(Rank = rank(Damage, na.last = "na", ties.method = "average")) -> damage_data
+
+damage_data %>% filter(Type == 'SUV') %>% kable(align ='lrr',format.args = list(trim = TRUE)) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"),
+                full_width = F,
+                font_size = 14,
+                position = "left")
+
+damage_data %>% filter(Type == 'Midsize') %>% kable(align ='lrr',format.args = list(trim = TRUE)) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"),
+                full_width = F,
+                font_size = 14,
+                position = "left")
+```
+
+
+### (d) Find the median and IQR of the data, either split by car type or as the difference between car types.
+```{r damage median and IQR}
+(damage_data %>% group_by(Type) %>% summarise(Median = median(Damage), IQR = IQR(Damage)) -> damage_summary) %>%
+  kable(align = 'lrr',format.args = list(trim = TRUE)) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"),
+                full_width = F,
+                font_size = 14,
+                position = "left")
+```
+
+The median (IQR) damage for Midsize cars is `r damage_summary$Median[1]` (`r damage_summary$IQR[1]`) hundreds of dollars.<br>
+The median (IQR) damage for SUVs is `r damage_summary$Median[2]` (`r damage_summary$IQR[2]`) hundreds of dollars.
+
+### (e) Formally test to determine if there is a difference in the distribution of cost for repairs for cars and SUVs.
+Use the appropriate nonparametric test (that was specified in part (b)) at the α = 0.05 level.
+
+```{r damage wilcoxon test}
+damage_wilcoxon_h.test <- wilcox.test(Damage ~ Type, alternative = 'two.sided', data = damage_data, paired = FALSE)
+damage_wilcoxon_p.value <- damage_wilcoxon_h.test$p.value %>% p.value.string
+```
+
+**Hypotheses**<br>
+$H_0: M_S = M_m$<br>
+$H_1: M_S \neq M_m$
+
+**Test Statistics**<br>
+$W=`r damage_wilcoxon_h.test$statistic`$
+
+**$p$-value**<br>
+$`r damage_wilcoxon_p.value`$
+
+**Rejection Region**<br>
+Reject $H_0$ if $p<\alpha$, where $\alpha = 0.05$.
+
+**Conclusion**<br>
+Reject $H_0$. There is sufficient evidence to suggest that there is a difference in costs for the repairs of cars and SUVs.
+
+### (f) Did we need to use a nonparametric test here? Justify your answer.
+If we had approximately normally distributed data, we would be able to use the $t$-test.
+
+
+```{r qqplots for damage}
+damage_car_qq.plot <- damage_data %>% filter(Type == 'Midsize') %>% ggplot(aes(sample = Damage)) +
+        stat_qq() + 
+        stat_qq_line() +
+        theme_bw() +
+        labs(title = 'QQ Plot: Damage Costs for Midsize Cars')
+
+damage_suv_qq.plot <- damage_data %>% filter(Type == 'SUV') %>% ggplot(aes(sample = Damage)) +
+        stat_qq() + 
+        stat_qq_line() +
+        theme_bw() +
+        labs(title = 'QQ Plot: Damage Costs for SUVs')
+
+damage_car_qq.plot
+damage_suv_qq.plot
+```
+
+The qq plot for the mid-size cars looks approximately normal except for the one data point to the right that looks like an outlier. The qq plot for the SUVs, however, looks less normal and possibly skewed to the right. Because of this, one should not assume normality of the data, and a nonparametric test is appropriate.
+
+## Session Info
+```{r}
+sessionInfo()
+```

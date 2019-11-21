@@ -1,0 +1,145 @@
+---
+title: "Chapter 6 Homework"
+author: "Reid Ginoza"
+date: "10/3/2019"
+output: html_document
+---
+  
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
+library(tidyverse)
+library(stats)
+library(infer)
+library(groupedstats)
+library(knitr)
+library(kableExtra)
+```
+
+```{r Support Functions}
+# Makes the ranking look nice. Returns integers unless there's a decimal.
+# Will be applied element-wise using lapply(). (Not a vector function ie. with apply())
+rank_round = function(x){
+  if (x %% 1 == 0) {
+    return(round(x, digits = 0))
+  } else {
+    return(round(x, digits = 1))
+  }
+}
+
+### p.value.string v2
+# Update v2: added the formatting that turns of scientific notation
+# fixes the case when p = 0.0001 (instead of p=1e-4)
+# This function called p.value.string creates a string
+# to be used when reporting the p-value. It includes the p on the LHS.
+# You will likely place it in $$ to get the LaTeX math formatting.
+# This should be placed in an r code chunk in the beginning of your R markdown
+# This code chunk by itself shouldn't produce any result.
+# by Reid Ginoza
+
+p.value.string = function(p.value){
+  p.value <- round(p.value, digits=4)
+  if (p.value == 0) {
+    return("p < 0.0001")
+  } else {
+    return(paste0("p = ", format(p.value, scientific = F)))
+  }
+}
+```
+
+# Chapter 6 Homework
+
+## 2. Data from problem 6.55 (page 358)
+Candidates spending grouped by gender.
+```{r}
+# Data provided with the following Columns: Candidate, Male, Female
+# Untidy data since each row contains a male candidate and a female candidate, which should be separated
+candidate_spending_data <- as_tibble(read_csv("6_55.csv", col_names = TRUE, col_types = 'iii'))
+candidate_spending_data %<>% gather("Gender", "Spending", -Candidate) %>% select(-Candidate)
+```
+
+### (a) Is this independent or paired data? Why?
+This data is independent. There is no relationship between any of the male candidates and any of the female candidates. Each candidate is their own case, so it makes sense to rearrange the data to have two columns, gender and spending, and we'll end up with 40 rows.
+
+### (b) Which t-test would be appropriate to compare the two groups?
+Since the data are independent, we will use the independent samples $t$-test. To determine which $t$-test, equal variances or unequal variances, we examine the sample variances to see if we can assume the population variances are equal.
+
+```{r}
+candidate_spending_data %>% group_by(Gender) %>% summarize(Mean = round(mean(Spending), digits = 2), SD = round(sd(Spending), digits = 2)) -> candidate_spending_summary
+candidate_spending_summary %>% select(Gender, SD) %>% kable(align ='lr',format.args = list(trim = TRUE)) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"),
+                full_width = F,
+                font_size = 14,
+                position = "left")
+```
+
+The sample standard deviation of the female group, $s_f$ is `r candidate_spending_summary %>% filter(Gender == 'Female') %>% pull(SD)`, and the sample standard deviation of the male group, $s_m$ is `r candidate_spending_summary %>% filter(Gender == 'Male') %>% pull(SD)`. We can say that the population variances are not equal if $s_m > 2s_f$, but this is not the case, so we can reasonably continue on the assumption that the population variances for the female and male candidate populations are equal, ie. assume $\sigma_f^2 = \sigma_m^2$ and use the equal variances $t$-test for independent samples.
+
+### (c) Find the mean and standard deviation of the data, either split by sex or as the difference between the sexes.
+(Note: the t-test you pick in part (b) will determine if you need to split or take the difference.)
+
+
+
+```{r}
+candidate_spending_summary %>% select(Gender, Mean, SD) %>% kable(align ='lrr',format.args = list(trim = TRUE)) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"),
+                full_width = F,
+                font_size = 14,
+                position = "left")
+```
+
+The mean (sd) of the female candidate spending is `r candidate_spending_summary %>% filter(Gender == 'Female') %>% pull(Mean)` (`r candidate_spending_summary %>% filter(Gender == 'Female') %>% pull(SD)`) thousands of dollars.  
+The mean (sd) of the male candidate spending is `r candidate_spending_summary %>% filter(Gender == 'Male') %>% pull(Mean)` (`r candidate_spending_summary %>% filter(Gender == 'Male') %>% pull(SD)`) thousands of dollars.
+
+### (d) Formally test to determine if the mean spending for males is greater than that of females. Use the appropriate version of the t-test with the critical at the α = 0.01 level.
+```{r}
+male_spending <- candidate_spending_data %>% filter(Gender == "Male")
+female_spending <- candidate_spending_data %>% filter(Gender == "Female")
+
+spending_t.output <- t.test(x = male_spending$Spending, y= female_spending$Spending, alternative="greater", mu = 0)
+spending_t.output$p.value %>% p.value.string -> spending_p.value
+```
+
+**Hypotheses**<br>
+$H_0: \mu_M \le \mu_F$<br>
+$H_1: \mu_M > \mu_F$
+
+**Test Statistic**<br>
+$t_0 = `r spending_t.output$statistic`$<br>
+
+**$p$-value**<br>
+$`r spending_p.value`$
+
+**Rejection Region**  
+Reject $H_0$ if $p < \alpha$, where $\alpha = 0.01$.
+
+**Conclusion**  
+Reject $H_0$. There is sufficient evidence to suggest that male candidates spend more than female candidates.
+
+### (e) Construct the 99% confidence interval for µM − µF.
+```{r}
+spending.two.sided_t.output <- t.test(x = male_spending$Spending, y= female_spending$Spending, alternative="two.sided", mu = 0, conf.level = 0.99)
+```
+
+The 99% confdience interval for $\mu_M - \mu_F$ is (`r spending.two.sided_t.output$conf.int`).
+
+### (f) Is the t-test appropriate here? Justify your answer.
+The $t$-test assumes that the samples are normally distributed. The qq-plots are shown below.
+
+```{r qqplots for candidate spending}
+candidates_female_qq.plot <- female_spending %>% ggplot(aes(sample = Spending)) +
+        stat_qq() + 
+        stat_qq_line() +
+        theme_bw() +
+        labs(title = 'QQ Plot: Female Candidate Spending')
+
+candidates_male_qq.plot <- male_spending %>% ggplot(aes(sample = Spending)) +
+        stat_qq() + 
+        stat_qq_line() +
+        theme_bw() +
+        labs(title = 'QQ Plot: Male Candidate Spending')
+
+candidates_female_qq.plot
+candidates_male_qq.plot
+```
+
+Based on the qq-plots, it appears that both the female candidate spending and the male candidate spending are normally distributed. A $t$-test is a valid decision. In addition, the samples are independent and the population variances are assumed to be equal, as mentioned in parts (a) and (b) respectively, making the independent samples $t$-test a valid choice.

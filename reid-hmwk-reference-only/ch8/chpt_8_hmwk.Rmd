@@ -1,0 +1,401 @@
+---
+title: "Chapters 8 and 9 Homework"
+author: "Reid Ginoza"
+date: "11/12/2019"
+output: html_document
+---
+  
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(car)
+library(agricolae)
+library(DescTools)
+library(stats)
+
+library(multcomp)
+library(pgirmess)
+library(tidyverse)
+library(dplyr)  # even though this is included in tidyverse, needed it for the select command
+library(knitr)
+library(kableExtra)
+library(pander)
+library(magrittr)  # wanted more pipe operators
+library(broom)  # lets you use the tidy conventions on the summary. first used in Tukey Table
+```
+
+```{r Support Functions}
+# multcomp package has a function named select() that might mask the dplyr::select(), originally in tidyverse.
+# Not using multcomp::select so can reassign select to the dplyr function.
+# Note I had to use library(dplyr) above since I couldn't directly export it from tidyverse::select.
+select <- dplyr::select
+
+# Made this for Kruskal-Wallis Ranking
+# Only want to list if a rank is in a tie.
+# Use with lapply
+is.tied = function(x){
+  if (x==TRUE) {
+    return("tied")
+  } else {
+    return("")
+  }
+}
+
+### p.value.string v2
+# Update v2: added the formatting that turns of scientific notation
+# fixes the case when p = 0.0001 (instead of p=1e-4)
+# This function called p.value.string creates a string
+# to be used when reporting the p-value. It includes the p on the LHS.
+# You will likely place it in $$ to get the LaTeX math formatting.
+# This should be placed in an r code chunk in the beginning of your R markdown
+# This code chunk by itself shouldn't produce any result.
+# by Reid Ginoza
+
+p.value.string = function(p.value){
+  p.value <- round(p.value, digits = 4)
+  if (p.value == 0) {
+    return("p < 0.0001")
+  } else {
+    return(paste0("p = ", format(p.value, scientific = F)))
+  }
+}
+```
+
+# Chapters 8 and 9 Homework
+
+Data is from Problem 8.29.
+Coloration (on a scale of 1-10) of strawberries grouped by 4 different preservatives.
+
+```{r Import Strawberry Discoloration Data}
+discolor_data <- as_tibble(read_csv("ex8-29.csv", skip = 1, col_names = c("Group I", "Group II", "Group III", "Group IV"), col_types = "dddd")) %>% gather(key = "Preservative", value = "Discoloration")
+
+discolor_data$Preservative %<>% as.factor()
+N_total <- discolor_data %>% nrow()  # Total number of samples
+k_groups <- discolor_data %>% select(Preservative) %>% unique() %>% nrow()  # Total number of groups
+sig.level <- 0.05  # alpha, but 'alpha' is used a lot as a name
+n_group <- 8  # number of samples in one group.
+```
+
+## 1.  One-Way ANOVA
+### (a)  Find the means and standard deviations of the groups.
+
+```{r Mean and SD}
+discolor_data %>%
+  group_by(Preservative) %>%
+  summarise(Mean = mean(Discoloration), SD = round(sd(Discoloration), digits = 3)) %>%
+  kable(align ='lrr',format.args = list(trim = TRUE)) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"),
+                full_width = F,
+                font_size = 14,
+                position = "left")
+```
+
+### (b)  Construct the corresponding one-way ANOVA table.
+```{r one way ANOVA table}
+aov(Discoloration ~ Preservative, data=discolor_data) -> discoloration_results
+
+discoloration_results %>% summary() -> discoloration_one.way.table
+
+discoloration_one.way.table %>% pander(style='rmarkdown')
+
+f0 <- discoloration_one.way.table[[1]][["F value"]][1]  # for part (c)
+p <- p.value.string(discoloration_one.way.table[[1]][["Pr(>F)"]][1])  # for part (c)
+```
+
+### (c)  Formally test to determine if there is a difference between the groups at the $\alpha = 0.05$ level.
+**Hypotheses**<br>
+$H_0$: $\mu_{I} = \mu_{II} = \mu_{III} = \mu_{IV}$<br>
+$H_1$: at least one is different
+
+**Test Statistic**<br>
+$F_0 = `r f0`$
+
+***p*-value**<br>
+$`r p`$.
+
+**Rejection Region**<br>
+Reject $H_0$ if $p < \alpha$, where $\alpha=0.05$.
+
+**Conclusion**<br>
+Reject $H_0$. There is sufficient evidence to suggest that at least one preservative is different from the others.
+
+## 2.  Kruskal-Wallis
+### (a)  Find the median and IQR of each group.
+```{r Median and IQR}
+discolor_data %>%
+  group_by(Preservative) %>%
+  summarise(Median = median(Discoloration), IQR = round(IQR(Discoloration), digits = 3)) %>%
+  kable(align ='lrr',format.args = list(trim = TRUE)) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"),
+                full_width = F,
+                font_size = 14,
+                position = "left")
+```
+
+### (b)  Rank the data as needed for the Kruskal-Wallis test.  Display your ranks using a table.
+I'm displaying the table with rankings in the original sorting on the left and sorted by rank on the right.
+```{r Kruskal-Wallis Ranking}
+
+discolor_data$Ranking <- rank(discolor_data$Discoloration, na.last = "na", ties.method = "average")
+discolor_data$Tied <- lapply(Reduce("|",tibble(duplicated(discolor_data$Ranking),duplicated(discolor_data$Ranking,fromLast = TRUE))),is.tied)
+
+discolor_data %>% select(Preservative, Discoloration, Ranking, Tied) %>% 
+  arrange(Ranking, Preservative) -> discolor_rank.sorted
+
+discolor_data %>% select(Preservative, Discoloration, Ranking, Tied) -> discolor_original.sorted
+
+kable(discolor_original.sorted, format = "html", table.attr = "cellpadding=\"3\"", output = FALSE) %>%
+  add_header_above(c("Original Order" = 4)) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"),
+                full_width = F,
+                font_size = 14,
+                position = "left") -> original_table
+
+kable(discolor_rank.sorted, format = "html", table.attr = "cellpadding=\"3\"", output = FALSE) %>%
+  add_header_above(c("Sorted by Rank" = 4)) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"),
+                full_width = F,
+                font_size = 14,
+                position = "left") -> sorted_table
+
+# These were used in the following HTML:
+# <table><tr valign="top"><td> `r original_table` </td> <td> `r sorted_table` </td></tr></table>
+```
+
+<table><tr valign="top"><td> `r original_table` </td> <td> `r sorted_table` </td></tr></table>
+
+
+### (c)  Formally test for a difference between the groups using the Kruskal-Wallis test at the $\alpha = 0.05$ level.
+
+```{r Kruskal-Wallis Hypothesis Test}
+discolor_kw_h.test <- kruskal.test(Discoloration ~ Preservative, data = discolor_data)
+```
+
+**Hypotheses**<br>
+$H_0: \ \textsf{M}_{I} = \textsf{M}_{II} = \textsf{M}_{III} = \textsf{M}_{IV}$ <br> 
+$H_1:$ at least one is different
+
+
+**Test Statistic**<br>
+$H = `r round(discolor_kw_h.test$statistic,digits=2)`$.
+
+
+***p*-value**<br>
+$`r p.value.string(discolor_kw_h.test$p.value)`$.
+
+**Conclusion**<br>
+Reject $H_0$. There is sufficient evidence to suggest that at least one of the preservatives is different from the others.
+
+## 3.  Post-hoc testing
+### (a)  Find the minimum significant difference for Tukey’s pairwise comparisons.
+```{r}
+mse <- discoloration_one.way.table[[1]][["Mean Sq"]][2]
+df_e <- discoloration_one.way.table[[1]][["Df"]][2]
+```
+
+Since each group has the same sample size, or $n_i = n_j$ for $i, j = 1, 2, 3, 4$, let $n$ be the sample size of a group, and 
+\[
+\textsf{W} = \dfrac{q_\alpha(k, \textsf{df}_\textsf{E})}{\sqrt{2}}\sqrt{\textsf{MS}_\textsf{E} \left(\frac{1}{n_i} + \frac{1}{n_j} \right)} = q_\alpha(k, \textsf{df}_\textsf{E}) \sqrt{\dfrac{\textsf{MS}_\textsf{E}}{n}}
+\]
+
+and from the ANOVA table in 1. (b), $\textsf{MS}_\textsf{E} = `r mse`$ and $\textsf{df}_\textsf{E} = `r df_e`$.
+
+```{r Tukey}
+p <- 1-sig.level   # this is 1 - \alpha
+Tukeys_W <- qtukey(p=p, nmeans=k_groups, df=df_e) * sqrt(mse/n_group)
+```
+
+The minimum significant difference is
+\[
+\textsf{W} = `r Tukeys_W`
+\].
+
+In the book, we would use $\textsf{df}_\textsf{E} = 24$ since $\textsf{df}_\textsf{E} = 28$ is not available in the Studentized range table, and that results in the more conservative $\textsf{W} = 3.90 \sqrt{\frac{`r round(mse, digits=2)`}{`r n_group`}} = `r 3.9 * sqrt(mse/n_group)`$.
+
+### (b)  Perform Tukey’s pairwise comparisons.  Present the information in a table as we did in class.
+```{r Tukey pairwise}
+discolor_tukey <- discoloration_results %>% glht(linfct = mcp(Preservative = "Tukey")) %>% summary()
+
+# needed a function to determine significance. Using a global variable, so this isn't a final version.
+# This compares the difference rather than the p.value.
+is.significant.tukey = function(x){
+  if (x > Tukeys_W) {
+    return("significant")
+  } else {
+    return("--")
+  }
+}
+
+# tidy() makes a list a tibble, can rename with select()
+tukey_table <- tidy(discolor_tukey) %>% select(Comparison = lhs, 'p.value', 'statistic')
+tukey_table$statistic %<>% abs
+tukey_table$significance <- tukey_table$statistic %>% sapply(is.significant.tukey)
+tukey_table$p.value %<>% sapply(p.value.string)
+
+# make table
+tukey_table %>% kable() %>%
+  kable_styling(bootstrap_options = c("striped", "hover"),
+                full_width = F,
+                font_size = 14,
+                position = "left")
+```
+
+### (c)  Find the minimum significant difference for Fisher’s pairwise comparisons.
+Fisher's LSD for same $n$ in each group:
+\[
+\textsf{LSD} = t_{\frac{\alpha}{2},\textsf{df}_\textsf{E}} \sqrt{\textsf{MS}_{\textsf{E}}\dfrac{2}{n}}
+\]
+
+And from the ANOVA table above, we are using $\textsf{MS}_\textsf{E} = `r mse`$ and $\textsf{df}_\textsf{E} = `r df_e`$. In our data $n=8$ for each group and we are testing at the $\alpha = 0.05$ level.
+
+```{r Fisher LSD}
+lsd <- qt(1-0.05/2, df_e) * sqrt(mse * 2 / n_group)
+```
+
+Fisher's LSD $= `r lsd`$.
+
+### (d)  Perform Fisher’s pairwise comparisons.  Present the information in a table as we did in class.
+```{r Fisher Pairwise Comparison}
+### This function should 'automate' making the Fisher table ###
+make.fisher.table <- function(t.test.output, significance=0.05){
+  is.significant.temporary <- function(x){
+    if (x < significance) {
+      return("significant")
+    } else {
+      return("--")
+    }
+  }
+  t.test.output %>% tidy() -> working_table
+  working_table$significance <- working_table$p.value %>% sapply(is.significant.temporary)
+  working_table %<>% unite(Comparison, group1, group2)
+  working_table$p.value %<>% sapply(p.value.string)
+  working_table %>%
+    kable() %>%
+    kable_styling(bootstrap_options = c("striped", "hover"),
+                full_width = F,
+                font_size = 14,
+                position = "left")
+}
+
+### Actual computation and calculation here
+pairwise.t.test(discolor_data$Discoloration, discolor_data$Preservative, p.adjust.method="none") %>%
+  make.fisher.table
+```
+
+### (e)  Give the coefficients for the following contrasts:
+#### i.  Groups I and II vs.  Groups III and IV.
+$a_1 = 1, a_2 = 1, a_3 = -1, a_4 = -1$
+
+#### ii.  Group I vs.  Groups II, III, and IV.
+$a_1 = 3, a_2 = -1, a_3 = -1, a_4 = -1$
+
+#### iii.  Group II vs.  Groups I and III.
+$a_1 = -1, a_2 = 2, a_3 = -1, a_4 = 0$
+
+#### iv.  Group I vs.  Group IV.
+$a_1 = 1, a_2 = 0, a_3 = 0, a_4 = -1$
+
+### (f)  Find the minimum significant difference for Dunnett’s test using Group I as the control group.
+\[
+D = d_\alpha(k-1, \textsf{df}_{\textsf{E}}) \sqrt{\textsf{MS}_\textsf{E}\left( \dfrac{1}{n_i} + \dfrac{1}{n_c} \right)}
+\]
+
+I used Table 11, for the Dunnett's test with $\alpha=0.05$ two-sided, k=3, $\nu = 24$, and $d_{0.05}(3, 24) = 2.51$.
+
+```{r Dunnett min sig diff}
+dunnett_D <- 2.51 * sqrt(mse * (1/8 + 1/8))
+```
+
+The minimum significant difference is `r dunnett_D`.
+
+### (g)  Perform Dunnett’s test using Group I as the control group.  Present the information in a table as we did in class.
+```{r Dunnet test}
+# needed a function to determine significance. Using a global variable, so this isn't a final version.
+# This compares the difference rather than the p.value.
+is.significant.dunnett <- function(x){
+  if (x > dunnett_D) {
+    return("significant")
+  } else {
+    return("--")
+  }
+}
+
+discoloration_results %>% glht(linfct = mcp(Preservative = "Dunnett")) %>% summary() -> discolor_dunnett
+
+discolor_dunnett %>% tidy() %>% select(Comparison = lhs, statistic, p.value)-> dunnett_table
+dunnett_table$statistic %<>% abs()
+dunnett_table$significance <- dunnett_table$statistic %>% sapply(is.significant.dunnett)
+dunnett_table$p.value %<>% sapply(p.value.string)
+
+# make table
+dunnett_table %>% kable() %>%
+  kable_styling(bootstrap_options = c("striped", "hover"),
+                full_width = F,
+                font_size = 14,
+                position = "left")
+```
+
+### (h)  Find the minimum significant difference for the Kruskal-Wallis pairwise comparisons.
+This formula is following the lecture notes.
+
+* Number of groups: $k=4$
+* Total sample size: $N = 32$
+* Sample size of a group: $n = 8$
+* From Table 10, \(q_{0.05}(4,\infty) = 3.63\).
+
+\[
+KW_{ij} \approx \dfrac{q_{0.05}(k,\infty)}{\sqrt{2}} \sqrt{\dfrac{N(N+1)}{12} \left(\dfrac{1}{n} + \dfrac{1}{n}\right)}
+\]
+
+```{r KW Minimum significant difference}
+KW.msd <- 3.63 / sqrt(2) * sqrt(N_total * (N_total + 1) / 12 * (1/n_group + 1/n_group))
+```
+
+The Kruskal-Wallis minimum significant difference for mean ranks is `r KW.msd`.
+
+### (i)  Perform the Kruskal-Wallis posthoc procedure to determine the pairwise differences.  Present the information in a table as we did in class.
+```{r Kruskal Wallis posthoc procedure}
+kw_posthoc <- kruskalmc(Discoloration ~ Preservative, data = discolor_data)
+kw_posthoc[[3]] %>% pander(style='rmarkdown')
+```
+
+## 4.  ANOVA assumptions
+The ANOVA assumptions are that the residuals have normal distributions with equal variances among all the groups.
+
+### (a)  Produce the residual graphs needed to assess ANOVA assumptions.
+Please see parts (b), (c), and (d) for the graphs.
+
+
+### (b)  Comment on the scatter plot; what assumption does this allow us to assess?
+```{r residual scatter}
+plot(discoloration_results, which = 1) # The parameter 'which' takes the index of the plot desired
+```
+
+The scatter plot allows us to assess whether the variances of the residuals are the same for each group by comparing the lengths of the vertical lines. In this case, it does appear that the lengths are roughly the same for all of the groups.
+
+### (c)  Comment on the histogram; what assumption does this allow us to assess?
+```{r resid hist}
+model_residuals <- residuals(discoloration_results)
+hist(model_residuals)
+```
+
+```{r resid density}
+plot(density(model_residuals))
+```
+
+The histogram allows us to check the normality assumption. If the residuals are approximately normally distributed, then we expect a symmetric bell shape centered at 0, and in our plots, this does appear to be the case. The density plot was also plotted as an alternative.
+
+### (d)  Comment on the normal probability plot; what assumption does this allow us to assess?
+```{r qq only}
+plot(discoloration_results, which = 2) # The parameter 'which' takes the index of the plot desired
+```
+
+The normal probability plot also allows us to see whether the residuals are normally distributed. If the data points fall along the 45 degree line, then the residuals are approximately normally distributed.
+
+### (e)  Based on your responses to parts 4(b) – 4(d), which set of analyses do you trust?  Justify your answer.  (Hint: you trust either your ANOVA-based analyses or your KW-based analyses.)
+
+Since the residuals do appear approximately normal and the variances appear to be constant between groups, then I trust the ANOVA-based analyses.
+
+## Session Info
+```{r}
+sessionInfo()
+```

@@ -1,0 +1,104 @@
+---
+title: "Chapters 8 and 9 Homework"
+author: "Reid Ginoza"
+date: "11/5/2019"
+output: html_document
+---
+  
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(knitr)
+library(kableExtra)
+library(pander)
+```
+
+```{r Support Functions}
+### p.value.string v2
+# Update v2: added the formatting that turns of scientific notation
+# fixes the case when p = 0.0001 (instead of p=1e-4)
+# This function called p.value.string creates a string
+# to be used when reporting the p-value. It includes the p on the LHS.
+# You will likely place it in $$ to get the LaTeX math formatting.
+# This should be placed in an r code chunk in the beginning of your R markdown
+# This code chunk by itself shouldn't produce any result.
+# by Reid Ginoza
+
+p.value.string = function(p.value){
+  p.value <- round(p.value, digits = 4)
+  if (p.value == 0) {
+    return("p < 0.0001")
+  } else {
+    return(paste0("p = ", format(p.value, scientific = F)))
+  }
+}
+```
+
+# Chapters 8 and 9 Homework
+
+Data is from Problem 8.29.
+Coloration (on a scale of 1-10) of strawberries grouped by 4 different preservatives.
+
+```{r Import Strawberry Discoloration Data}
+discolor_data <- as_tibble(read_csv("ex8-29.csv", skip = 1, col_names = c("Group I", "Group II", "Group III", "Group IV"), col_types = "dddd")) %>% gather(key = "Preservative", value = "Discoloration")
+
+```
+
+
+## 2.  Kruskal-Wallis
+### (a)  Find the median and IQR of each group.
+```{r Median and IQR}
+discolor_summary_2 <- discolor_data %>% group_by(Preservative) %>% summarise(Median = median(Discoloration), IQR = round(IQR(Discoloration), digits = 3))
+discolor_summary_2 %>% select(Preservative, Median, IQR) %>% kable(align ='lrr',format.args = list(trim = TRUE)) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"),
+                full_width = F,
+                font_size = 14,
+                position = "left")
+```
+
+### (b)  Rank the data as needed for the Kruskal-Wallis test.  Display your ranks using a table.
+I'm displaying the table with rankings in the original sorting on the left and sorted by rank on the right.
+```{r Kruskal-Wallis Ranking}
+# Want to list whether a rank is in a tie.
+# Use with lapply
+is.tied = function(x){
+  if (x==TRUE) {
+    return("__tied")
+  } else {
+    return("")
+  }
+}
+
+discolor_data$Ranking <- rank(discolor_data$Discoloration, na.last = "na", ties.method = "average")
+discolor_data$Tied <- lapply(Reduce("|",tibble(duplicated(discolor_data$Ranking),duplicated(discolor_data$Ranking,fromLast = TRUE))),is.tied)
+
+discolor_data %>% select(Preservative, Discoloration, Ranking, Tied) %>% 
+  arrange(Ranking, Preservative) -> discolor_rank.sorted
+discolor_data %>% select(Preservative, Discoloration, Ranking, Tied) -> discolor_original.sorted
+kable(list(discolor_original.sorted, discolor_rank.sorted)) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"),
+                full_width = F,
+                font_size = 14,
+                position = "left")
+```
+
+### (c)  Formally test for a difference between the groups using the Kruskal-Wallis test at the $\alpha = 0.05$ level.
+
+```{r Kruskal-Wallis Hypothesis Test}
+discolor_kw_h.test <- kruskal.test(Discoloration ~ Preservative, data = discolor_data)
+```
+
+**Hypotheses**<br>
+$H_0: \ \textsf{M}_{I} = \textsf{M}_{II} = \textsf{M}_{III} = \textsf{M}_{IV}$ <br> 
+$H_1:$ at least one is different
+
+
+**Test Statistic**<br>
+$H = `r round(discolor_kw_h.test$statistic,digits=2)`$.
+
+
+***p*-value**<br>
+$`r p.value.string(discolor_kw_h.test$p.value)`$.
+
+**Conclusion**<br>
+Reject $H_0$. There is sufficient evidence to suggest that at least one of the preservatives is different from the others.

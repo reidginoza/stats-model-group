@@ -1,0 +1,105 @@
+---
+title: "Chapter 7 Homework"
+author: "Reid Ginoza"
+date: "10/10/2019"
+output: html_document
+---
+  
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
+library(tidyverse)
+library(EnvStats)
+library(stats)
+library(car)
+library(knitr)
+library(kableExtra)
+```
+
+```{r Support Functions}
+### p.value.string v2
+# Update v2: added the formatting that turns of scientific notation
+# fixes the case when p = 0.0001 (instead of p=1e-4)
+# This function called p.value.string creates a string
+# to be used when reporting the p-value. It includes the p on the LHS.
+# You will likely place it in $$ to get the LaTeX math formatting.
+# This should be placed in an r code chunk in the beginning of your R markdown
+# This code chunk by itself shouldn't produce any result.
+# by Reid Ginoza
+
+p.value.string = function(p.value){
+  p.value <- round(p.value, digits = 4)
+  if (p.value == 0) {
+    return("p < 0.0001")
+  } else {
+    return(paste0("p = ", format(p.value, scientific = F)))
+  }
+}
+```
+
+# Chapter 7 Homework
+
+## 3. Data from Problem 7.29
+```{r Import Oven Data}
+oven_data <- as_tibble(read_csv("ex7-29.csv", col_names = TRUE, col_types = 'ddd')) %>% gather('Oven', 'Temperature')
+```
+
+### (a)  Find the mean and standard deviation, split by oven.
+```{r Oven Mean and SD}
+oven_summary <- oven_data %>% group_by(Oven) %>% summarize(Mean = round(mean(Temperature), digits = 2), SD = round(sd(Temperature), digits = 2))
+oven_summary %>% select(Oven, Mean, SD) %>% kable(align ='lrr',format.args = list(trim = TRUE)) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"),
+                full_width = F,
+                font_size = 14,
+                position = "left")
+```
+
+The mean (standard deviation) temperature of Oven I is  `r oven_summary %>% filter(Oven == 'Oven1') %>% select(Mean)` (`r oven_summary %>% filter(Oven == 'Oven1') %>% select(SD)`).<br>
+The mean (standard deviation) temperature of Oven II is  `r oven_summary %>% filter(Oven == 'Oven2') %>% select(Mean)` (`r oven_summary %>% filter(Oven == 'Oven2') %>% select(SD)`).<br>
+The mean (standard deviation) temperature of Oven III is  `r oven_summary %>% filter(Oven == 'Oven3') %>% select(Mean)` (`r oven_summary %>% filter(Oven == 'Oven3') %>% select(SD)`).
+
+### (b)  Formally test to determine if there is a difference between the standard deviations at the α=0.05 level.
+```{r Over Hypothesis Test}
+oven_h.test <- leveneTest(Temperature ~ Oven, data = oven_data, center = median)
+oven_p.value <- p.value.string(oven_h.test$"Pr(>F)"[1])
+```
+
+**Hypotheses**<br>
+$H_0: \sigma_I = \sigma_{II} = \sigma_{III}$<br>
+$H_1:$ At least one is different
+
+**Test Statistic**<br>
+$F_0 = `r oven_h.test$F[1]`$
+
+**$p$-value**<br>
+$`r oven_p.value`$
+
+**Rejection Region**<br>
+Reject $H_0$ if $p<\alpha$, where $\alpha=0.05$.
+
+**Conclusion**<br>
+Reject $H_0$. There is sufficient evidence to suggest that at least one of the standard deviations is different from the others.
+
+### (c)  Find the 95% CI for the σ of each oven.
+```{r Oven Individual CIs}
+oven1_ci <- round(sqrt(varTest((oven_data %>% filter(Oven == 'Oven1'))$Temperature, alternative = "two.sided", conf.level = 0.95)$conf.int), digits = 2)
+oven2_ci <- round(sqrt(varTest((oven_data %>% filter(Oven == 'Oven2'))$Temperature, alternative = "two.sided", conf.level = 0.95)$conf.int), digits = 2)
+oven3_ci <- round(sqrt(varTest((oven_data %>% filter(Oven == 'Oven3'))$Temperature, alternative = "two.sided", conf.level = 0.95)$conf.int), digits = 2)
+```
+
+| Oven      | 95% Confidence Interval for $\sigma$|
+| ----------- | ----------- |
+| Oven 1  | $(`r oven1_ci`)$ |
+| Oven 2  | $(`r oven2_ci`)$ |
+| Oven 3  | $(`r oven3_ci`)$ |
+
+
+### (d)  Do the CIs in part (c) match your hypothesis test results in part (a)?  Why or why not?
+Yes, my confidence intervals agree with my results. Oven 3's interval does not overlap with either of the other two, so it makes sense the 
+
+### (e)  Do you see any potential issues with making the comparison requested in part (d)?
+Not for this problem. Even before the 95% confidence intervals for the standard deviations were calculated, the sample standard deviation for Oven 3 was much higher than that of Oven 1 and Oven 2. Perhaps if the Oven 3 confidence interval overlapped with that of Oven 2, there would be a concern.
+
+## Session Info
+```{r}
+sessionInfo()
+```

@@ -1,0 +1,96 @@
+---
+title: "Chapter 7 Homework"
+author: "Reid Ginoza"
+date: "10/10/2019"
+output: html_document
+---
+  
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
+library(tidyverse)
+library(EnvStats)
+library(stats)
+library(car)
+library(knitr)
+library(kableExtra)
+```
+
+```{r Support Functions}
+### p.value.string v2
+# Update v2: added the formatting that turns of scientific notation
+# fixes the case when p = 0.0001 (instead of p=1e-4)
+# This function called p.value.string creates a string
+# to be used when reporting the p-value. It includes the p on the LHS.
+# You will likely place it in $$ to get the LaTeX math formatting.
+# This should be placed in an r code chunk in the beginning of your R markdown
+# This code chunk by itself shouldn't produce any result.
+# by Reid Ginoza
+
+p.value.string = function(p.value){
+  p.value <- round(p.value, digits = 4)
+  if (p.value == 0) {
+    return("p < 0.0001")
+  } else {
+    return(paste0("p = ", format(p.value, scientific = F)))
+  }
+}
+```
+
+# Chapter 7 Homework
+
+## 2. Data from Problem 7.20
+```{r Import Tire Data}
+tire_data <- as_tibble(read_csv("ex7-20.csv", col_names = TRUE, col_types = 'dd')) %>% gather('Brand', 'Distance')
+```
+
+### (a)  Find the mean and standard deviation of the data, split by brand.
+```{r Tire Mean and SD}
+tire_summary <- tire_data %>% group_by(Brand) %>% summarise(Mean = mean(Distance), SD = round(sd(Distance), digits = 3))
+tire_summary %>% select(Brand, Mean, SD) %>% kable(align ='lrr',format.args = list(trim = TRUE)) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"),
+                full_width = F,
+                font_size = 14,
+                position = "left")
+```
+
+The mean (standard deviation) of the distance of Brand I tires is `r tire_summary %>% filter(Brand == 'Brand I') %>% select(Mean)` (`r tire_summary %>% filter(Brand == 'Brand I') %>% select(SD)`) thousands of miles.<br>
+The mean (standard deviation) of the distance of Brand II tires is `r tire_summary %>% filter(Brand == 'Brand II') %>% select(Mean)` (`r tire_summary %>% filter(Brand == 'Brand II') %>% select(SD)`) thousands of miles.
+
+### (b)  Formally  test  to  determine  if  there  is  a  difference  between  the  standard  deviations  of  the  two brands at the α=0.01 level.
+
+```{r Tires Hypothesis Test}
+tires_h.test <- var.test((tire_data %>% filter(Brand == 'Brand I'))$Distance, (tire_data %>% filter(Brand == 'Brand II'))$Distance, alternative = "two.sided", conf.level = 0.99, ratio = 1)
+
+tires_p.value <- tires_h.test$p.value %>% p.value.string
+```
+
+**Hypotheses**<br>
+$H_0: \sigma_I^2 = \sigma_{II}^2$<br>
+$H_1: \sigma_I^2 \ne \sigma_{II}^2$
+
+**Test Statistic**<br>
+$F_0=`r tires_h.test$statistic`$
+
+**$p$-value**<br>
+$`r tires_p.value`$
+
+**Rejection Region**<br>
+Reject $H_0$ if $p<\alpha$, where $\alpha = 0.01$.
+
+**Conclusion**<br>
+Reject $H_0$. There is sufficient evidence to suggest that the standard deviation of the Brand II tires is different from the standard deviation of Brand I tires.
+
+### (c)  Construct the 99% confidence interval for $\frac{\sigma_I}{\sigma_{II}}$.
+```{r Tires Confidence Interval}
+tires_sd_conf.int <- round(sqrt(tires_h.test$conf.int), digits = 2)
+```
+
+The 99% confidence interval for the ratio $\frac{\sigma_I}{\sigma_{II}}$ is (`r tires_sd_conf.int`).
+
+### (d)  If  we  were  to  go  on  and  test  the  means  of  the  two  brands,  would  we  use  the  pooled $t$-test  or Satterthwaite’s?  Why?
+We would use Satterthwaite's approximation for the $t$-test, which allows for populations that do not have the same variance, and we just arrived at the conclusion that the two variances (or standard devations) are not equal.
+
+## Session Info
+```{r}
+sessionInfo()
+```
