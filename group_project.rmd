@@ -64,11 +64,6 @@ ncaa.div.i_data <- institution_data %>%
 #   filter(is.na(IL_PARTIC_COED_WOMEN) | IL_PARTIC_COED_WOMEN == 0 ) %>% # only schools with no female participants in coed
 #   select(-contains("COED")) # ignore variables with the word "coed"
 
-##### To view the school data
-# school_data <- read_spss('Schools.sav') %>% select(
-#   -unitid, -addr1_txt, -addr2_txt, -zip_text, -ClassificationCode,-ClassificationOther,
-#   -sector_cd
-#   )
 
 #####
 # To view variables included as a list (although you could probably just view the data):
