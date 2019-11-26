@@ -106,23 +106,6 @@ This project examines potential(?) salary differences between head coaches from 
 \(H_1\):
 
 
-```{r import data}
-institution_data <- as_tibble(read_spss('InstLevel.sav')) %>%
-  select(  # TODO will change later when we decide what variables we want
-  -unitid, -addr1_txt, -addr2_txt, -city_txt, -zip_text, -sector_cd,
-  -ClassificationCode, -ClassificationOther
-  ) %>%
-  filter(grepl('4-year', sector_name))  %>% # only 4-year Schools
-  filter(is.na(IL_PARTIC_COED_MEN) | IL_PARTIC_COED_MEN == 0 ) %>% # only schools with no male participants in coed
-  filter(is.na(IL_PARTIC_COED_WOMEN) | IL_PARTIC_COED_WOMEN == 0 ) %>% # only schools with no female participants in coed
-  select(-contains("COED")) %>% # ignore variables with the word "coed"
-  mutate(Grand.Total.Profits = GRND_TOTAL_REVENUE - GRND_TOTAL_EXPENSE) %>%
-  filter(!is.na(HDCOACH_SALARY_MEN)) %>% # filter out NA
-  filter(!is.na(HDCOACH_SALARY_WOMEN))  # filter out NA
-ncaa.div.i_data <- institution_data %>%
-  filter(grepl('NCAA Division I-', classification_name)) # only NCAA division 1
-```
-
 ```{r}
 wilcoxon.attempt <- institution_data %>%
   select(classification_name, HDCOACH_SALARY_MEN, HDCOACH_SALARY_WOMEN) %>%
@@ -141,17 +124,18 @@ wilcoxon.attempt_results
 
 gender_wilcoxon_p.value <- wilcoxon.attempt_results$p.value %>% p.value.string
 ```
-**Hypotheses**<br>
-\(H_0\):  \(M_{male} = M_{female}\)
+
+**Hypotheses**  
+\(H_0\):  \(M_{male} = M_{female}\)  
 \(H_1\): \(M_{male} \ne M_{female}\)
 
-**Test Statistics**<br>
-$W=`r wilcoxon.attempt_results$statistic`$$
+**Test Statistics**  
+$W=`r wilcoxon.attempt_results$statistic`$
 
-**$p$-value$$**<br>
+**$p$-value**  
 $`r gender_wilcoxon_p.value`$
 
-**Rejection Region**<br>
+**Rejection Region**  
 Reject $H_0$ if $p<\alpha$, where $\alpha = 0.05$.
 
 **Conclusion**<br>
