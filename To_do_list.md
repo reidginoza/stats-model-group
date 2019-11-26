@@ -26,3 +26,17 @@ should we do Head Coach Salary ~ participants + gender? (adjusted for gender)
 ## Compare Variances?
 
 Do we still do this?
+
+## Variable List
+Dependent:
+
+* Head coach salary men
+* Head coach salary women
+
+Independent/Predictors:
+
+* School name
+* School Classification/Division
+* School Sector (public/private) I think?
+* Participants men
+* Participants women
