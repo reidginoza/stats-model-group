@@ -18,7 +18,7 @@ library(pgirmess)
 library(pander)
 library(tidyverse)
 library(knitr)
-library(kableExtra) # for tables
+# library(kableExtra) # for tables
 library(magrittr)  # provides more pipe oeprators
 library(haven)
 options(knitr.table.format = "latex")
