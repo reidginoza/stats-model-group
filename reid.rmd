@@ -52,6 +52,15 @@ ncaa.div.i_data <- institution_data %>%
   filter(grepl('NCAA Division I-', classification_name)) # only NCAA division 1
 ```
 
+```{r redo import}
+institution_data.v2 <- read_spss('InstLevel.sav') %>%
+  select(institution_name, state_cd, ClassificationCode, classification_name, sector_cd, sector_name, HDCOACH_SALARY_MEN, HDCOACH_SALARY_WOMEN, IL_PARTIC_MEN, IL_PARTIC_WOMEN, IL_PARTIC_COED_MEN, IL_PARTIC_COED_WOMEN) %>%
+  filter(grepl('4-year', sector_name))  %>% # only 4-year Schools
+  filter(is.na(IL_PARTIC_COED_MEN) | IL_PARTIC_COED_MEN == 0 ) %>% # only schools with no male participants in coed
+  filter(is.na(IL_PARTIC_COED_WOMEN) | IL_PARTIC_COED_WOMEN == 0 ) %>% # only schools with no female participants in coed
+  select(-contains("COED")) # ignore variables with the word "coed"
+```
+
 ```{r Notes to self, include=FALSE}
 ##### All 4-year Institutions
 # institution_data <- read_spss('InstLevel.sav') %>%
