@@ -16,15 +16,15 @@ nocite: |
 knitr::opts_chunk$set(echo = TRUE)
 library(pgirmess)
 library(pander)
+library(scales)  # for percent
 library(tidyverse)
 library(knitr)
+# options(kableExtra.latex.load_packages = FALSE)
 library(kableExtra) # for tables
 library(magrittr)  # provides more pipe oeprators
 library(haven)
-options(knitr.table.format = "latex")
-```
+# options(knitr.table.format = "latex")
 
-```{r support functions}
 almost_sas <- function(aov.results){
   par(mfrow=c(2,2))
   plot(aov.results, which=1)
@@ -37,103 +37,87 @@ almost_sas <- function(aov.results){
 
 ```{r import data}
 institution_data <- read_spss('InstLevel.sav') %>%
-  select(  # TODO will change later when we decide what variables we want
-  -unitid, -addr1_txt, -addr2_txt, -city_txt, -zip_text, -sector_cd,
-  -ClassificationCode, -ClassificationOther
-  ) %>%
+  select(institution_name, state_cd, ClassificationCode, classification_name, sector_cd, sector_name, HDCOACH_SALARY_MEN, HDCOACH_SALARY_WOMEN, IL_PARTIC_MEN, IL_PARTIC_WOMEN, IL_PARTIC_COED_MEN, IL_PARTIC_COED_WOMEN) %>%
   filter(grepl('4-year', sector_name))  %>% # only 4-year Schools
   filter(is.na(IL_PARTIC_COED_MEN) | IL_PARTIC_COED_MEN == 0 ) %>% # only schools with no male participants in coed
   filter(is.na(IL_PARTIC_COED_WOMEN) | IL_PARTIC_COED_WOMEN == 0 ) %>% # only schools with no female participants in coed
   select(-contains("COED")) %>% # ignore variables with the word "coed"
-  mutate(Grand.Total.Profits = GRND_TOTAL_REVENUE - GRND_TOTAL_EXPENSE) %>%
   filter(!is.na(HDCOACH_SALARY_MEN)) %>% # filter out NA
   filter(!is.na(HDCOACH_SALARY_WOMEN))  # filter out NA
+
 ncaa.div.i_data <- institution_data %>%
   filter(grepl('NCAA Division I-', classification_name)) # only NCAA division 1
-```
 
-```{r Notes to self, include=FALSE}
-##### All 4-year Institutions
-# institution_data <- read_spss('InstLevel.sav') %>%
-#   select(  # TODO will change later when we decide what variables we want
-#   -unitid, -addr1_txt, -addr2_txt, -city_txt, -zip_text, -sector_cd,
-#   -ClassificationCode, -ClassificationOther
-#   ) %>%
-#   filter(grepl('4-year', sector_name))  %>% # only 4-year Schools
-#   filter(is.na(IL_PARTIC_COED_MEN) | IL_PARTIC_COED_MEN == 0 ) %>% # only schools with no male participants in coed
-#   filter(is.na(IL_PARTIC_COED_WOMEN) | IL_PARTIC_COED_WOMEN == 0 ) %>% # only schools with no female participants in coed
-#   select(-contains("COED")) # ignore variables with the word "coed"
+men_data <- institution_data %>%
+  select(-contains("WOMEN")) %>% 
+  rename(HD_SALARY = HDCOACH_SALARY_MEN, IL_PARTIC = IL_PARTIC_MEN)
 
+women_data <- institution_data %>%
+  select(-contains("_MEN")) %>%
+  rename(HD_SALARY = HDCOACH_SALARY_WOMEN, IL_PARTIC = IL_PARTIC_WOMEN)
 
-#####
-# To view variables included as a list (although you could probably just view the data):
-# institution_columns <- institution_data %>% colnames()
-
-#####
-# To view number of NAs in a column:
-# count.of.na <- institution_data %>% summarise_all(~sum(is.na(.)))
-
-#####
-# To view unique entries of a column
-# divisions <- institution_data$classification_name %>% unique()
+gender.separated_data <- bind_rows(
+  men_data %>% add_column(Gender = "Men"),
+  women_data %>% add_column(Gender = "Women")
+)
 ```
 
 # Introduction
 <!-- %TODO Briefly give meaning to your project – what is the background and why is this project important?  (20 points) -->
-This project examines NCAA Division I athletics. We used the data from the Equity in Athletics Survey, Year 2017-2018, from the U.S. Department of Education Office of Postsecondary Education [-@EADA2018].
+While it seems to be common knownledge that some of the highest paid public employees are college sports teams coaches, less is known about the salaries of college-level sports coaches in general. This project examined predictors of head coach salaries of sports teams at four-year colleges and universities in the United States. We used the institution-level data from the Equity in Athletics Survey, Year 2017-2018, from the U.S. Department of Education Office of Postsecondary Education [-@EADA2018]. Our analysis focused on the differences of head coach salaries between male and female teams, of classification, and of the number of student participants at an institution level.
+
+The full data set listed completed surveys for 2079 institutions. The 578 two-year colleges were excluded, as well as the 120 four-year schools with coed teams and 18 other institutions with missing values for head coach salaries. Our working data set had 1363 four-year institutions without coed sports teams.
 
 # Hypotheses
-
-## Divisions and Profits
-
-
-## Head Coaches of Men's Teams and School Type
 <!-- %TODO Clearly state the hypotheses being tested. (20 points) -->
-<!-- Note: we need the two spaces at the end of the first line of the hypothesis test-->
-\(H_0\):  
-\(H_1\):
-
-## Head Coaches of Men's Teams and Participation
-<!-- %TODO Clearly state the hypotheses being tested. (20 points) -->
-\(H_0\):  
-\(H_1\):
-
-## Difference in Classifications
-There are 18 different classifications, including NCAA Division I-FCS, NCAA II without Football, and so forth. This question looks at the means of the profits for each classification.
-\(H_0\): \(\mu_1 = \mu_2 = \dots = \mu_{18}\)  
-\(H_1\): At least one is different
-
-## Difference in Classfications (Nonparametric)
+We examined whether the classifications and the gender of the team had effects on the head coach salaries. To do that, we first investigated the variances of head coach salaries of male teams compared with that of female teams. We checked for interaction effects between classification and gender of team. We also looked at whether the number of participants institution-wide predicted the salary for the head coaches.
 
 # Methods
 <!-- %TODO State and explain the methodology used to test the hypotheses.  (20 points) -->
+Data was analyzed using R version 3.6.1 (2019-07-05) [@rlang]. Data is described using counts (percentage) for categorical variables and mean (standard deviation) for continuous variables.
 
 # Results
+## Description of Data
 <!-- %TODO Describe the data (1st paragraph) -->
+```{r continuous variables description part 1, include=FALSE}
+# Couldn't figure out how to do what I wanted, so I made the table "by hand"
+men.salary_mean <- institution_data$HDCOACH_SALARY_MEN %>% mean() %>% round(digits = 2) %>% prettyNum(big.mark=",", trim=TRUE, digits = 8, scientific = FALSE)
+men.salary_sd <- institution_data$HDCOACH_SALARY_MEN %>% sd() %>% round(digits = 2) %>% prettyNum(big.mark=",", trim=TRUE, digits = 8, scientific = FALSE)
+women.salary_mean <- institution_data$HDCOACH_SALARY_WOMEN %>% mean() %>% round(digits = 2) %>% prettyNum(big.mark=",", trim=TRUE, digits = 7, scientific = FALSE)
+women.salary_sd <- institution_data$HDCOACH_SALARY_WOMEN %>% sd() %>% round(digits = 2) %>% prettyNum(big.mark=",", trim=TRUE, digits = 7, scientific = FALSE)
+total.salary_mean <- gender.separated_data$HD_SALARY %>% mean() %>% round(digits = 2) %>% prettyNum(big.mark=",", trim=TRUE, digits = 7, scientific = FALSE)
+total.salary_sd <- gender.separated_data$HD_SALARY %>% sd() %>% round(digits = 2) %>% prettyNum(big.mark=",", trim=TRUE, digits = 8, scientific = FALSE)
 
-## Results of Difference in Classification
-```{r ANOVA for sectors}
-classification.results <- aov(Grand.Total.Profits ~ classification_name, data = institution_data)
-almost_sas(classification.results)
+men.part_mean <- institution_data$IL_PARTIC_MEN %>% mean() %>% round(digits = 2)
+men.part_sd <- institution_data$IL_PARTIC_MEN %>% sd() %>% round(digits = 2)
+women.part_mean <- institution_data$IL_PARTIC_WOMEN %>% mean() %>% round(digits = 2)
+women.part_sd <- institution_data$IL_PARTIC_WOMEN %>% sd() %>% round(digits = 2)
+total.participation_data <- institution_data %>% mutate(Total.Participation = IL_PARTIC_MEN + IL_PARTIC_WOMEN) %>% select (Total.Participation)
+total.part_mean <- total.participation_data$Total.Participation %>% mean() %>% round(digits = 2)
+total.part_sd <- total.participation_data$Total.Participation %>% sd() %>% round(digits = 2)
+
+tribble(
+  ~Variable, ~Mean, ~SD,
+  "Head Coach--Men's Salary", men.salary_mean, men.salary_sd,
+  "Head Coach--Women's Salary", women.salary_mean, women.salary_sd,
+  "Head Coach--All Salary", total.salary_mean, total.salary_sd,
+  "Participation--Men", men.part_mean, men.part_sd,
+  "Participation--Women", women.part_mean, women.part_sd,
+  "Participation--Total", total.part_mean, total.part_sd
+) %>% kable(booktabs = T) -> table.text
+```
+`r table.text`
+```{r categorical variables description}
+institution_data %>% group_by("Classification Name" = classification_name) %>% summarize(Count = n()) %>%
+  mutate(Percentage = percent(Count / 1363)) %>% kable(booktabs = T)
 ```
 
-```{r Classification Kruskal-Wallis}
-classification_kruskal.results <- kruskal.test(Grand.Total.Profits ~ classification_name, data = institution_data)
-classification_post.hoc <- kruskalmc(Grand.Total.Profits ~ classification_name, data = institution_data)
-
-# pander(classification_post.hoc[[3]], style='rmarkdown')  # TODO: shorten table!
-```
-
-## Describing and Visualizing Head Coach data
-```{r hist of head coach, message=FALSE}
-hd.coach.salary_data <- ncaa.div.i_data %>%
-  select(sector_name, HDCOACH_SALARY_MEN)
-
-hd.coach.salary_data %>%
-  ggplot(aes(x = HDCOACH_SALARY_MEN, fill = sector_name)) +
+```{r describe head coach salaries, message=FALSE}
+gender.separated_data %>%
+  ggplot(aes(x = HD_SALARY, fill = Gender)) +
   geom_histogram(position = "dodge") +
-  labs(title="Histogram of NCAA Div. I Men's Head Coach Salary", x = "Salary (USD)",
-       y = "Count", fill = "School Type:") +
+  labs(title="Head Coach Salary", x = "Salary (USD)",
+       y = "Count", fill = "Gender:") +
   theme(
     legend.position="bottom",
     panel.background = element_rect(fill = 'white', color = 'grey'),
@@ -144,49 +128,42 @@ hd.coach.salary_data %>%
   )
 ```
 
-```{r qq plot of Private Schools head coach}
-hd.coach.salary_data %>%
-  filter(grepl('Private', sector_name)) %>% 
-  ggplot(aes(sample = HDCOACH_SALARY_MEN)) + 
-  stat_qq() + stat_qq_line() + theme_bw()
-```
-```{r qq plot Public Schools head cach}
-hd.coach.salary_data %>%
-  filter(grepl('Public', sector_name)) %>% 
-  ggplot(aes(sample = HDCOACH_SALARY_MEN)) + 
-  stat_qq() + stat_qq_line() + theme_bw()
+
+## Analysis Results
+<!-- %TODO Analysis results (order of results should correspond to hypotheses listed).  (20 points) -->
+
+```{r BFL gender}
+
 ```
 
-## Describing and Visualizing Participation of Men and Head Coach Salaries
-```{r scatter plot of head coach salaries}
-men.participation.data <- ncaa.div.i_data %>%
-  select(IL_PARTIC_MEN, HDCOACH_SALARY_MEN)
+```{r Wilcoxon gender}
 
-men.participation.data %>% ggplot(aes(x=IL_PARTIC_MEN, y=HDCOACH_SALARY_MEN)) +
-  geom_point() +
-  geom_smooth(method = lm) +
-  labs(title="Scatterplot of Men's Head Coach Salary by Men Particiation Counts", x = "Count of Men Participating",
-       y = "Head Coach's Salary (USD)") +
-  theme(
-    panel.background = element_rect(fill = 'white', color = 'grey'),
-    panel.grid.major = element_line(size = 0.25, linetype = 'solid',
-                                color = "grey"), 
-    panel.grid.minor = element_line(size = 0.1, linetype = 'solid',
-                                color = "grey")
-  )
 ```
 
-<!-- %TODO And analysis results (order of results should correspond to hypotheses listed).  (20 points) -->
-## Results of Head Coach data
+```{r twoway ANOVA interaction between classification and gender}
 
-## Results of Particiption of Men and Head Coach Salaries
+```
+
+```{r Kruskal Wallis classification}
+
+```
+
+```{r posthoc Kruskal Wallis}
+
+```
+
+```{r linear regression participants}
+
+```
+
+```{r linear regression appropriate}
+
+```
 
 # Conclusion
 <!-- %TODO Restate the results in terms of the larger picture; state limitations and opportunities for future research (20 points) -->
 
-## Session Info
-```{r Session Info}
-sessionInfo()
-```
+Our data set contained only the averages of head coach salaries of a given institution, so we were unable to capture any variance within an institution. Additionally, this study only used the surveys from one year and future studies should investigate the salaries over multiple years.
+
 
 # References

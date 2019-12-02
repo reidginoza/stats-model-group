@@ -1,5 +1,5 @@
 ---
-title: "Stats Modeling Project"
+title: "Old Notes"
 author: "Group 5: Xin Jin, Reid Ginoza, Heidi Lovejoy"
 date: "11/18/2019"
 # header-includes:
@@ -22,9 +22,7 @@ library(kableExtra) # for tables
 library(magrittr)  # provides more pipe oeprators
 library(haven)
 options(knitr.table.format = "latex")
-```
 
-```{r support functions}
 almost_sas <- function(aov.results){
   par(mfrow=c(2,2))
   plot(aov.results, which=1)
@@ -34,23 +32,6 @@ almost_sas <- function(aov.results){
   hist(aov_residuals)
 }
 ```
-
-# ```{r import data}
-# institution_data <- read_spss('InstLevel.sav') %>%
-#   select(  # TODO will change later when we decide what variables we want
-#   -unitid, -addr1_txt, -addr2_txt, -city_txt, -zip_text, -sector_cd,
-#   -ClassificationOther
-#   ) %>%
-#   filter(grepl('4-year', sector_name))  %>% # only 4-year Schools
-#   filter(is.na(IL_PARTIC_COED_MEN) | IL_PARTIC_COED_MEN == 0 ) %>% # only schools with no male participants in coed
-#   filter(is.na(IL_PARTIC_COED_WOMEN) | IL_PARTIC_COED_WOMEN == 0 ) %>% # only schools with no female participants in coed
-#   select(-contains("COED")) %>% # ignore variables with the word "coed"
-#   mutate(Grand.Total.Profits = GRND_TOTAL_REVENUE - GRND_TOTAL_EXPENSE) %>%
-#   filter(!is.na(HDCOACH_SALARY_MEN)) %>% # filter out NA
-#   filter(!is.na(HDCOACH_SALARY_WOMEN))  # filter out NA
-# ncaa.div.i_data <- institution_data %>%
-#   filter(grepl('NCAA Division I-', classification_name)) # only NCAA division 1
-# ```
 
 ```{r import data}
 institution_data <- read_spss('InstLevel.sav') %>%
@@ -79,82 +60,11 @@ gender.separated_data <- bind_rows(
 )
 ```
 
-```{r Notes to self, include=FALSE}
-##### All 4-year Institutions
-# institution_data <- read_spss('InstLevel.sav') %>%
-#   select(  # TODO will change later when we decide what variables we want
-#   -unitid, -addr1_txt, -addr2_txt, -city_txt, -zip_text, -sector_cd,
-#   -ClassificationCode, -ClassificationOther
-#   ) %>%
-#   filter(grepl('4-year', sector_name))  %>% # only 4-year Schools
-#   filter(is.na(IL_PARTIC_COED_MEN) | IL_PARTIC_COED_MEN == 0 ) %>% # only schools with no male participants in coed
-#   filter(is.na(IL_PARTIC_COED_WOMEN) | IL_PARTIC_COED_WOMEN == 0 ) %>% # only schools with no female participants in coed
-#   select(-contains("COED")) # ignore variables with the word "coed"
-
-##### To view the school data
-# school_data <- read_spss('Schools.sav') %>% select(
-#   -unitid, -addr1_txt, -addr2_txt, -zip_text, -ClassificationCode,-ClassificationOther,
-#   -sector_cd
-#   )
-
-#####
-# To view variables included as a list (although you could probably just view the data):
-# institution_columns <- institution_data %>% colnames()
-
-#####
-# To view number of NAs in a column:
-# count.of.na <- institution_data %>% summarise_all(~sum(is.na(.)))
-
-#####
-# To view unique entries of a column
-# divisions <- institution_data$classification_name %>% unique()
-```
-
-# Counts of Divisions
-```{r count}
-institution_data %>%
-  group_by(classification_name) %>% 
-  summarize('Mean Men Head Coach Salary'=mean(HDCOACH_SALARY_MEN), 'SD Men'=sd(HDCOACH_SALARY_MEN),  
-            'Mean Woen Head Coach Salary'=mean(HDCOACH_SALARY_WOMEN), 'SD Women'=sd(HDCOACH_SALARY_WOMEN), Count=n()) %>%
-  kable() %>%
-  kable_styling(bootstrap_options = c("striped", "hover"),
-                full_width = F,
-                font_size = 14,
-                position = "left")
-```
-
-
-
-```{r Classification Codes}
-institution_data %>%
-  select(ClassificationCode, classification_name) %>%
-  unique()
-```
-
-```{r}
-institution_data %>%
-  filter(ClassificationCode==9) %>%
-  select(classification_name,HDCOACH_SALARY_WOMEN) %>%
-  # summarize(mean=mean(HDCOACH_SALARY_MEN)) # results in NA
-  summary()
-```
-
-```{r}
-two.way.anova.attempt <- institution_data %>%
-  select(classification_name, HDCOACH_SALARY_MEN, HDCOACH_SALARY_WOMEN) %>%
-  gather("Gender", "Salary", -classification_name)
-two.way.anova.attempt$Gender %<>% recode(HDCOACH_SALARY_MEN="Men", HDCOACH_SALARY_WOMEN="Women")
-two.way.anova.attempt
-```
-
-```{r}
-adv_aov.results <- aov(Salary ~ classification_name*Gender, data = two.way.anova.attempt)
-adv_aov.table <- adv_aov.results %>% summary()
-adv_aov.table %>% pander(style = 'rmarkdown')
-```
 # Introduction
 <!-- %TODO Briefly give meaning to your project – what is the background and why is this project important?  (20 points) -->
-This project examines NCAA Division I athletics. We used the data from the Equity in Athletics Survey, Year 2017-2018, from the U.S. Department of Education Office of Postsecondary Education [-@EADA2018].
+This project examined predictors of head coach salaries of sports teams at four-year colleges and universities in the United States. We used the data from the Equity in Athletics Survey, Year 2017-2018, from the U.S. Department of Education Office of Postsecondary Education [-@EADA2018]. Our analysis focused on the differences of head coach salaries between male and female teams, of classification, and of the number of student participants at an institution level.
+
+The full data set listed completed surveys for 2079 institutions. The 578 two-year colleges were excluded, as well as the 120 four-year schools with coed teams and 18 other institutions with missing values for head coach salaries. Our working data set had 1363 four-year institutions without coed sports teams.
 
 # Hypotheses
 
@@ -181,11 +91,12 @@ There are 18 different classifications, including NCAA Division I-FCS, NCAA II w
 
 # Methods
 <!-- %TODO State and explain the methodology used to test the hypotheses.  (20 points) -->
+Data was analyzed using R version 3.6.1 (2019-07-05) [@rlang]. Data is described using counts (percentage) for categorical variables and mean (standard deviation) for continuous variables.
 
 # Results
 <!-- %TODO Describe the data (1st paragraph) -->
 
-<!-- ## Results of Difference in Classification -->
+## Results of Difference in Classification
 <!-- ```{r ANOVA for sectors} -->
 <!-- classification.results <- aov(Grand.Total.Profits ~ classification_name, data = institution_data) -->
 <!-- almost_sas(classification.results) -->
@@ -257,6 +168,8 @@ men.participation.data %>% ggplot(aes(x=IL_PARTIC_MEN, y=HDCOACH_SALARY_MEN)) +
 
 # Conclusion
 <!-- %TODO Restate the results in terms of the larger picture; state limitations and opportunities for future research (20 points) -->
+
+Our data set contained only the averages of head coach salaries of a given institution, so we were unable to capture any variance within the institution.
 
 ## Session Info
 ```{r Session Info}
