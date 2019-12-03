@@ -1,16 +1,12 @@
 # To do list
 
-## Data import
-
-* Only 4-year schools
-* Narrow down variables
-
-## Compare Medians
-
-* Only NCAA Division I
-* Only men's head coaches
-
-Public school head coach salary vs private school head coach salary
+- [ ] Variance of male vs. female HD Coach Salaries
+- [ ] Median test of male vs. female HD Coach Salaries
+- [ ] Interaction between Classification and Gender
+- [ ] Multiple Groups Median (Kruskal-Wallis) for Classification and head coach salaries
+- [ ] Posthoc pairwise comparisons for classifications
+- [ ] Linear regression model for participants and head coach salaries
+- [ ] Is linear regression model appropriate
 
 ## ANOVA
 Head Coach Salary ~ Division * Gender (of team)
@@ -23,10 +19,6 @@ Head Coach Salary ~ participants
 
 should we do Head Coach Salary ~ participants + gender? (adjusted for gender)
 
-## Compare Variances?
-
-Do we still do this?
-
 ## Variable List
 Dependent:
 
@@ -35,8 +27,6 @@ Dependent:
 
 Independent/Predictors:
 
-* School name
 * School Classification/Division
-* School Sector (public/private) I think?
 * Participants men
 * Participants women

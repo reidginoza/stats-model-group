@@ -18,6 +18,7 @@ library(pgirmess)
 library(pander)
 library(scales)  # for percent
 library(tidyverse)
+library(broom)
 library(knitr)
 # options(kableExtra.latex.load_packages = FALSE)
 library(kableExtra) # for tables
@@ -33,11 +34,20 @@ almost_sas <- function(aov.results){
   plot(density(aov_residuals))
   hist(aov_residuals)
 }
+
+p.value.string = function(p.value){
+  p.value <- round(p.value, digits = 4)
+  if (p.value == 0) {
+    return("p < 0.0001")
+  } else {
+    return(paste0("p = ", format(p.value, scientific = F)))
+  }
+}
 ```
 
 ```{r import data}
 institution_data <- read_spss('InstLevel.sav') %>%
-  select(institution_name, state_cd, ClassificationCode, classification_name, sector_cd, sector_name, HDCOACH_SALARY_MEN, HDCOACH_SALARY_WOMEN, IL_PARTIC_MEN, IL_PARTIC_WOMEN, IL_PARTIC_COED_MEN, IL_PARTIC_COED_WOMEN) %>%
+  select(institution_name, state_cd, ClassificationCode, Classification=classification_name, sector_cd, sector_name, HDCOACH_SALARY_MEN, HDCOACH_SALARY_WOMEN, IL_PARTIC_MEN, IL_PARTIC_WOMEN, IL_PARTIC_COED_MEN, IL_PARTIC_COED_WOMEN) %>%
   filter(grepl('4-year', sector_name))  %>% # only 4-year Schools
   filter(is.na(IL_PARTIC_COED_MEN) | IL_PARTIC_COED_MEN == 0 ) %>% # only schools with no male participants in coed
   filter(is.na(IL_PARTIC_COED_WOMEN) | IL_PARTIC_COED_WOMEN == 0 ) %>% # only schools with no female participants in coed
@@ -46,15 +56,15 @@ institution_data <- read_spss('InstLevel.sav') %>%
   filter(!is.na(HDCOACH_SALARY_WOMEN))  # filter out NA
 
 ncaa.div.i_data <- institution_data %>%
-  filter(grepl('NCAA Division I-', classification_name)) # only NCAA division 1
+  filter(grepl('NCAA Division I-', Classification)) # only NCAA division 1
 
 men_data <- institution_data %>%
   select(-contains("WOMEN")) %>% 
-  rename(HD_SALARY = HDCOACH_SALARY_MEN, IL_PARTIC = IL_PARTIC_MEN)
+  rename(Salary = HDCOACH_SALARY_MEN, IL_PARTIC = IL_PARTIC_MEN)
 
 women_data <- institution_data %>%
   select(-contains("_MEN")) %>%
-  rename(HD_SALARY = HDCOACH_SALARY_WOMEN, IL_PARTIC = IL_PARTIC_WOMEN)
+  rename(Salary = HDCOACH_SALARY_WOMEN, IL_PARTIC = IL_PARTIC_WOMEN)
 
 gender.separated_data <- bind_rows(
   men_data %>% add_column(Gender = "Men"),
@@ -85,8 +95,8 @@ men.salary_mean <- institution_data$HDCOACH_SALARY_MEN %>% mean() %>% round(digi
 men.salary_sd <- institution_data$HDCOACH_SALARY_MEN %>% sd() %>% round(digits = 2) %>% prettyNum(big.mark=",", trim=TRUE, digits = 8, scientific = FALSE)
 women.salary_mean <- institution_data$HDCOACH_SALARY_WOMEN %>% mean() %>% round(digits = 2) %>% prettyNum(big.mark=",", trim=TRUE, digits = 7, scientific = FALSE)
 women.salary_sd <- institution_data$HDCOACH_SALARY_WOMEN %>% sd() %>% round(digits = 2) %>% prettyNum(big.mark=",", trim=TRUE, digits = 7, scientific = FALSE)
-total.salary_mean <- gender.separated_data$HD_SALARY %>% mean() %>% round(digits = 2) %>% prettyNum(big.mark=",", trim=TRUE, digits = 7, scientific = FALSE)
-total.salary_sd <- gender.separated_data$HD_SALARY %>% sd() %>% round(digits = 2) %>% prettyNum(big.mark=",", trim=TRUE, digits = 8, scientific = FALSE)
+total.salary_mean <- gender.separated_data$Salary %>% mean() %>% round(digits = 2) %>% prettyNum(big.mark=",", trim=TRUE, digits = 7, scientific = FALSE)
+total.salary_sd <- gender.separated_data$Salary %>% sd() %>% round(digits = 2) %>% prettyNum(big.mark=",", trim=TRUE, digits = 8, scientific = FALSE)
 
 men.part_mean <- institution_data$IL_PARTIC_MEN %>% mean() %>% round(digits = 2)
 men.part_sd <- institution_data$IL_PARTIC_MEN %>% sd() %>% round(digits = 2)
@@ -104,17 +114,17 @@ tribble(
   "Participation--Men", men.part_mean, men.part_sd,
   "Participation--Women", women.part_mean, women.part_sd,
   "Participation--Total", total.part_mean, total.part_sd
-) %>% kable(booktabs = T) -> table.text
+) %>% kable(booktabs = T) -> summary.table.text
 ```
-`r table.text`
+`r summary.table.text`
 ```{r categorical variables description}
-institution_data %>% group_by("Classification Name" = classification_name) %>% summarize(Count = n()) %>%
+institution_data %>% group_by(Classification) %>% summarize(Count = n()) %>%
   mutate(Percentage = percent(Count / 1363)) %>% kable(booktabs = T)
 ```
 
-```{r describe head coach salaries, message=FALSE}
+```{r describe head coach salaries, echo=FALSE, message=FALSE}
 gender.separated_data %>%
-  ggplot(aes(x = HD_SALARY, fill = Gender)) +
+  ggplot(aes(x = Salary, fill = Gender)) +
   geom_histogram(position = "dodge") +
   labs(title="Head Coach Salary", x = "Salary (USD)",
        y = "Count", fill = "Gender:") +
@@ -141,15 +151,36 @@ gender.separated_data %>%
 ```
 
 ```{r twoway ANOVA interaction between classification and gender}
+classification.gender.interaction.results <- gender.separated_data %$% aov(Salary ~ Classification * Gender)
+```
 
+```{r profile plots, echo=FALSE}
+gender.separated_data %>% 
+  ggplot() +
+  aes(x = Classification, color = Gender, group = Gender, y = Salary) +
+  stat_summary(fun.y = mean, geom = "point") +
+  stat_summary(fun.y = mean, geom = "line") + 
+  labs(
+    title = "Profile Plot of Salary by Classification and Gender",
+    x = "Classification",
+    y = "Salary (USD)"
+    ) + 
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
+  scale_y_continuous(labels = comma)
+```
+```{r testing ANOVA assumptions}
+classification.gender.interaction.results %>% almost_sas()
 ```
 
 ```{r Kruskal Wallis classification}
-
+classification.kw.test <- gender.separated_data %$% kruskal.test(Salary ~ Classification) %>% tidy()
 ```
+The Kruskal Wallis test resulted in a test statistic \(H = `r classification.kw.test$statistic`\) (\(`r classification.kw.test$p.value %>% p.value.string`\)), so there is sufficient evidence to suggest that at least one classification is different from the others. Thus, the posthoc procedure for the Kruskal-Wallis test was completed to find pairwise differences between the classifications.
+
 
 ```{r posthoc Kruskal Wallis}
-
+classification.kw.posthoc <- gender.separated_data %$% kruskalmc(Salary ~ Classification)
 ```
 
 ```{r linear regression participants}

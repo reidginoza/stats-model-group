@@ -54,7 +54,7 @@ almost_sas <- function(aov.results){
 
 ```{r import data}
 institution_data <- read_spss('InstLevel.sav') %>%
-  select(institution_name, state_cd, ClassificationCode, classification_name, sector_cd, sector_name, HDCOACH_SALARY_MEN, HDCOACH_SALARY_WOMEN, IL_PARTIC_MEN, IL_PARTIC_WOMEN, IL_PARTIC_COED_MEN, IL_PARTIC_COED_WOMEN) %>%
+  select(institution_name, state_cd, ClassificationCode, Classification=classification_name, sector_cd, sector_name, HDCOACH_SALARY_MEN, HDCOACH_SALARY_WOMEN, IL_PARTIC_MEN, IL_PARTIC_WOMEN, IL_PARTIC_COED_MEN, IL_PARTIC_COED_WOMEN) %>%
   filter(grepl('4-year', sector_name))  %>% # only 4-year Schools
   filter(is.na(IL_PARTIC_COED_MEN) | IL_PARTIC_COED_MEN == 0 ) %>% # only schools with no male participants in coed
   filter(is.na(IL_PARTIC_COED_WOMEN) | IL_PARTIC_COED_WOMEN == 0 ) %>% # only schools with no female participants in coed
@@ -63,21 +63,27 @@ institution_data <- read_spss('InstLevel.sav') %>%
   filter(!is.na(HDCOACH_SALARY_WOMEN))  # filter out NA
 
 ncaa.div.i_data <- institution_data %>%
-  filter(grepl('NCAA Division I-', classification_name)) # only NCAA division 1
+  filter(grepl('NCAA Division I-', Classification)) # only NCAA division 1
 
 men_data <- institution_data %>%
   select(-contains("WOMEN")) %>% 
-  rename(HD_SALARY = HDCOACH_SALARY_MEN, IL_PARTIC = IL_PARTIC_MEN)
+  rename(Salary = HDCOACH_SALARY_MEN, IL_PARTIC = IL_PARTIC_MEN)
 
 women_data <- institution_data %>%
   select(-contains("_MEN")) %>%
-  rename(HD_SALARY = HDCOACH_SALARY_WOMEN, IL_PARTIC = IL_PARTIC_WOMEN)
+  rename(Salary = HDCOACH_SALARY_WOMEN, IL_PARTIC = IL_PARTIC_WOMEN)
 
 gender.separated_data <- bind_rows(
   men_data %>% add_column(Gender = "Men"),
   women_data %>% add_column(Gender = "Women")
 )
 ```
+
+# Notes for Kruskal-Wallis posthoc comparison 
+```{r}
+classification.kw.posthoc <- gender.separated_data %$% kruskalmc(Salary ~ Classification)
+```
+`r classification.kw.posthoc[[3]] %>% pander(style = "rmarkdown")`
 
 ```{r Notes to self, include=FALSE}
 ##### All 4-year Institutions
@@ -113,7 +119,7 @@ gender.separated_data <- bind_rows(
 # Counts of Divisions
 ```{r count}
 institution_data %>%
-  group_by(classification_name) %>% 
+  group_by(Classification) %>% 
   summarize('Mean Men Head Coach Salary'=mean(HDCOACH_SALARY_MEN), 'SD Men'=sd(HDCOACH_SALARY_MEN),  
             'Mean Woen Head Coach Salary'=mean(HDCOACH_SALARY_WOMEN), 'SD Women'=sd(HDCOACH_SALARY_WOMEN), Count=n()) %>%
   kable() %>%
@@ -127,28 +133,28 @@ institution_data %>%
 
 ```{r Classification Codes}
 institution_data %>%
-  select(ClassificationCode, classification_name) %>%
+  select(ClassificationCode, Classification) %>%
   unique()
 ```
 
 ```{r}
 institution_data %>%
   filter(ClassificationCode==9) %>%
-  select(classification_name,HDCOACH_SALARY_WOMEN) %>%
+  select(Classification,HDCOACH_SALARY_WOMEN) %>%
   # summarize(mean=mean(HDCOACH_SALARY_MEN)) # results in NA
   summary()
 ```
 
 ```{r}
 two.way.anova.attempt <- institution_data %>%
-  select(classification_name, HDCOACH_SALARY_MEN, HDCOACH_SALARY_WOMEN) %>%
-  gather("Gender", "Salary", -classification_name)
+  select(Classification, HDCOACH_SALARY_MEN, HDCOACH_SALARY_WOMEN) %>%
+  gather("Gender", "Salary", -Classification)
 two.way.anova.attempt$Gender %<>% recode(HDCOACH_SALARY_MEN="Men", HDCOACH_SALARY_WOMEN="Women")
 two.way.anova.attempt
 ```
 
 ```{r}
-adv_aov.results <- aov(Salary ~ classification_name*Gender, data = two.way.anova.attempt)
+adv_aov.results <- aov(Salary ~ Classification*Gender, data = two.way.anova.attempt)
 adv_aov.table <- adv_aov.results %>% summary()
 adv_aov.table %>% pander(style = 'rmarkdown')
 ```
