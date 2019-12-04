@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=pdflatex 2019.10.27)  18 NOV 2019 21:23
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=pdflatex 2019.10.27)  3 DEC 2019 21:59
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -748,17 +748,8 @@ File: t1lmtt.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
 LaTeX Font Info:    Font shape `T1/lmtt/bx/n' in size <10> not available
 (Font)              Font shape `T1/lmtt/b/n' tried instead on input line 147.
-
-Package xcolor Warning: Incompatible color definition on input line 156.
-
-
-Package xcolor Warning: Incompatible color definition on input line 156.
-
-
-Package xcolor Warning: Incompatible color definition on input line 158.
-
 LaTeX Font Info:    Trying to load font information for TS1+lmtt on input line 
-160.
+147.
 (/Users/macowner/Library/TinyTeX/texmf-dist/tex/latex/lm/ts1lmtt.fd
 File: ts1lmtt.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
@@ -768,195 +759,163 @@ Package xcolor Warning: Incompatible color definition on input line 173.
 
 Package xcolor Warning: Incompatible color definition on input line 173.
 
-LaTeX Font Info:    Trying to load font information for OT1+lmr on input line 1
-92.
+[1
+
+{/Users/macowner/Library/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
+LaTeX Font Info:    Trying to load font information for OT1+lmr on input line 2
+28.
 (/Users/macowner/Library/TinyTeX/texmf-dist/tex/latex/lm/ot1lmr.fd
 File: ot1lmr.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
-LaTeX Font Info:    Trying to load font information for OML+lmm on input line 1
-92.
+LaTeX Font Info:    Trying to load font information for OML+lmm on input line 2
+28.
 (/Users/macowner/Library/TinyTeX/texmf-dist/tex/latex/lm/omllmm.fd
 File: omllmm.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
 LaTeX Font Info:    Trying to load font information for OMS+lmsy on input line 
-192.
+228.
 (/Users/macowner/Library/TinyTeX/texmf-dist/tex/latex/lm/omslmsy.fd
 File: omslmsy.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
 LaTeX Font Info:    Trying to load font information for OMX+lmex on input line 
-192.
+228.
 (/Users/macowner/Library/TinyTeX/texmf-dist/tex/latex/lm/omxlmex.fd
 File: omxlmex.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10> on input line 192.
+(Font)              <10> on input line 228.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <7> on input line 192.
+(Font)              <7> on input line 228.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <5> on input line 192.
-LaTeX Font Info:    Trying to load font information for U+msa on input line 192
+(Font)              <5> on input line 228.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 228
 .
 (/Users/macowner/Library/TinyTeX/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 192
+LaTeX Font Info:    Trying to load font information for U+msb on input line 228
 .
 (/Users/macowner/Library/TinyTeX/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
-) [1
-
-{/Users/macowner/Library/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-
-Package xcolor Warning: Incompatible color definition on input line 226.
-
-
-Package xcolor Warning: Incompatible color definition on input line 231.
-
-
-Package xcolor Warning: Incompatible color definition on input line 231.
-
-<"group_project_files/figure-latex/""ANOVA for sectors-1".pdf, id=93, 469.755pt
- x 325.215pt>
-File: "group_project_files/figure-latex/""ANOVA for sectors-1".pdf Graphic file
- (type pdf)
-<use "group_project_files/figure-latex/""ANOVA for sectors-1".pdf>
-Package pdftex.def Info: "group_project_files/figure-latex/""ANOVA for sectors-
-1".pdf  used on input line 233.
-(pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
-
-Package xcolor Warning: Incompatible color definition on input line 235.
-
+)
 
 Package xcolor Warning: Incompatible color definition on input line 242.
 
 
-Package xcolor Warning: Incompatible color definition on input line 242.
+Package xcolor Warning: Incompatible color definition on input line 247.
 
 
-Package xcolor Warning: Incompatible color definition on input line 248.
+Package xcolor Warning: Incompatible color definition on input line 247.
 
-[2 <./group_project_files/figure-latex/ANOVA for sectors-1.pdf>]
-
-Package xcolor Warning: Incompatible color definition on input line 267.
-
-
-Package xcolor Warning: Incompatible color definition on input line 267.
-
-<"group_project_files/figure-latex/""hist of head coach-1".pdf, id=112, 469.755
-pt x 325.215pt>
-File: "group_project_files/figure-latex/""hist of head coach-1".pdf Graphic fil
-e (type pdf)
-<use "group_project_files/figure-latex/""hist of head coach-1".pdf>
-Package pdftex.def Info: "group_project_files/figure-latex/""hist of head coach
--1".pdf  used on input line 269.
-(pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
-
-Package xcolor Warning: Incompatible color definition on input line 271.
-
-
-Package xcolor Warning: Incompatible color definition on input line 278.
-
-
-Package xcolor Warning: Incompatible color definition on input line 278.
-
-<"group_project_files/figure-latex/""qq plot of Private Schools head coach-1".p
-df, id=113, 469.755pt x 325.215pt>
-File: "group_project_files/figure-latex/""qq plot of Private Schools head coach
--1".pdf Graphic file (type pdf)
-<use "group_project_files/figure-latex/""qq plot of Private Schools head coach-
-1".pdf>
-Package pdftex.def Info: "group_project_files/figure-latex/""qq plot of Private
- Schools head coach-1".pdf  used on input line 280.
+[2]
+<"group_project_files/figure-latex/""describe head coach salaries-1".pdf, id=58
+, 469.755pt x 325.215pt>
+File: "group_project_files/figure-latex/""describe head coach salaries-1".pdf G
+raphic file (type pdf)
+<use "group_project_files/figure-latex/""describe head coach salaries-1".pdf>
+Package pdftex.def Info: "group_project_files/figure-latex/""describe head coac
+h salaries-1".pdf  used on input line 277.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 
 Package xcolor Warning: Incompatible color definition on input line 282.
 
-[3 <./group_project_files/figure-latex/hist of head coach-1.pdf>]
+[3 <./group_project_files/figure-latex/describe head coach salaries-1.pdf>]
 
-Package xcolor Warning: Incompatible color definition on input line 289.
+Package xcolor Warning: Incompatible color definition on input line 286.
 
 
-Package xcolor Warning: Incompatible color definition on input line 289.
+Package xcolor Warning: Incompatible color definition on input line 286.
 
-<"group_project_files/figure-latex/""qq plot Public Schools head cach-1".pdf, i
-d=123, 469.755pt x 325.215pt>
-File: "group_project_files/figure-latex/""qq plot Public Schools head cach-1".p
-df Graphic file (type pdf)
-<use "group_project_files/figure-latex/""qq plot Public Schools head cach-1".pd
-f>
-Package pdftex.def Info: "group_project_files/figure-latex/""qq plot Public Sch
-ools head cach-1".pdf  used on input line 291.
+<"group_project_files/figure-latex/""profile plots-1".pdf, id=69, 469.755pt x 3
+25.215pt>
+File: "group_project_files/figure-latex/""profile plots-1".pdf Graphic file (ty
+pe pdf)
+<use "group_project_files/figure-latex/""profile plots-1".pdf>
+Package pdftex.def Info: "group_project_files/figure-latex/""profile plots-1".p
+df  used on input line 288.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
-[4 <./group_project_files/figure-latex/qq plot of Private Schools head coach-1.
-pdf>]
 
-Package xcolor Warning: Incompatible color definition on input line 298.
+Package xcolor Warning: Incompatible color definition on input line 301.
 
 
-Package xcolor Warning: Incompatible color definition on input line 316.
+Package xcolor Warning: Incompatible color definition on input line 305.
 
 
-Package xcolor Warning: Incompatible color definition on input line 316.
+Package xcolor Warning: Incompatible color definition on input line 305.
 
-<"group_project_files/figure-latex/""scatter plot of head coach salaries-1".pdf
-, id=133, 469.755pt x 325.215pt>
-File: "group_project_files/figure-latex/""scatter plot of head coach salaries-1
-".pdf Graphic file (type pdf)
-<use "group_project_files/figure-latex/""scatter plot of head coach salaries-1"
-.pdf>
-Package pdftex.def Info: "group_project_files/figure-latex/""scatter plot of he
-ad coach salaries-1".pdf  used on input line 318.
+
+Package xcolor Warning: Incompatible color definition on input line 315.
+
+
+Package xcolor Warning: Incompatible color definition on input line 319.
+
+
+Package xcolor Warning: Incompatible color definition on input line 319.
+
+<"group_project_files/figure-latex/""ANOVA assumptions-1".pdf, id=70, 469.755pt
+ x 325.215pt>
+File: "group_project_files/figure-latex/""ANOVA assumptions-1".pdf Graphic file
+ (type pdf)
+<use "group_project_files/figure-latex/""ANOVA assumptions-1".pdf>
+Package pdftex.def Info: "group_project_files/figure-latex/""ANOVA assumptions-
+1".pdf  used on input line 321.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
-[5 <./group_project_files/figure-latex/qq plot Public Schools head cach-1.pdf>]
 
-Package xcolor Warning: Incompatible color definition on input line 334.
+Package xcolor Warning: Incompatible color definition on input line 323.
+
+[4 <./group_project_files/figure-latex/profile plots-1.pdf>]
+
+Package xcolor Warning: Incompatible color definition on input line 327.
 
 
-Package xcolor Warning: Incompatible color definition on input line 338.
+Package xcolor Warning: Incompatible color definition on input line 327.
 
 
-Package xcolor Warning: Incompatible color definition on input line 338.
+Package xcolor Warning: Incompatible color definition on input line 336.
 
-[6 <./group_project_files/figure-latex/scatter plot of head coach salaries-1.pd
-f>]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 404.
-[7]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 404.
+
+Package xcolor Warning: Incompatible color definition on input line 340.
+
+
+Package xcolor Warning: Incompatible color definition on input line 340.
+
+[5 <./group_project_files/figure-latex/ANOVA assumptions-1.pdf>]
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 393.
+[6]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 393.
 (./group_project.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 404.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 404.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 393.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 393.
 Package rerunfilecheck Info: File `group_project.out' has not changed.
-(rerunfilecheck)             Checksum: D3D5F30E28D16F5D6B792CEA43C862D9;3444.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 404.
+(rerunfilecheck)             Checksum: 893972B8C73F615518B912C52E9B62A4;836.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 393.
  ) 
 Here is how much of TeX's memory you used:
- 12980 strings out of 494111
- 184663 string characters out of 6170576
- 265379 words of memory out of 5000000
- 16837 multiletter control sequences out of 15000+600000
- 44856 words of font info for 45 fonts, out of 8000000 for 9000
+ 12931 strings out of 494111
+ 182703 string characters out of 6170576
+ 264766 words of memory out of 5000000
+ 16808 multiletter control sequences out of 15000+600000
+ 44549 words of font info for 44 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 31i,5n,37p,488b,441s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 31i,7n,37p,350b,343s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/Users/macowner/Library/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}{/Us
-ers/macowner/Library/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ts1.enc}{/Users/m
-acowner/Library/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathsy.enc}{/Users/mac
-owner/Library/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-rm.enc}{/Users/macowner/
-Library/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}</Users/macowner/Li
-brary/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx12.pfb></Users/macowner/Libr
-ary/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi10.pfb></Users/macowner/Librar
-y/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr10.pfb></Users/macowner/Library/T
-inyTeX/texmf-dist/fonts/type1/public/lm/lmr17.pfb></Users/macowner/Library/Tiny
-TeX/texmf-dist/fonts/type1/public/lm/lmr7.pfb></Users/macowner/Library/TinyTeX/
-texmf-dist/fonts/type1/public/lm/lmri10.pfb></Users/macowner/Library/TinyTeX/te
-xmf-dist/fonts/type1/public/lm/lmri12.pfb></Users/macowner/Library/TinyTeX/texm
-f-dist/fonts/type1/public/lm/lmsy10.pfb></Users/macowner/Library/TinyTeX/texmf-
-dist/fonts/type1/public/lm/lmtk10.pfb></Users/macowner/Library/TinyTeX/texmf-di
-st/fonts/type1/public/lm/lmtt10.pfb></Users/macowner/Library/TinyTeX/texmf-dist
-/fonts/type1/public/lm/lmtti10.pfb>
-Output written on group_project.pdf (7 pages, 379691 bytes).
+ers/macowner/Library/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-rm.enc}{/Users/ma
+cowner/Library/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}{/Users/maco
+wner/Library/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ts1.enc}</Users/macowner/
+Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx12.pfb></Users/macowner/Li
+brary/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi10.pfb></Users/macowner/Libr
+ary/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr10.pfb></Users/macowner/Library
+/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr17.pfb></Users/macowner/Library/Ti
+nyTeX/texmf-dist/fonts/type1/public/lm/lmr7.pfb></Users/macowner/Library/TinyTe
+X/texmf-dist/fonts/type1/public/lm/lmri10.pfb></Users/macowner/Library/TinyTeX/
+texmf-dist/fonts/type1/public/lm/lmri12.pfb></Users/macowner/Library/TinyTeX/te
+xmf-dist/fonts/type1/public/lm/lmtk10.pfb></Users/macowner/Library/TinyTeX/texm
+f-dist/fonts/type1/public/lm/lmtt10.pfb></Users/macowner/Library/TinyTeX/texmf-
+dist/fonts/type1/public/lm/lmtti10.pfb>
+Output written on group_project.pdf (6 pages, 496385 bytes).
 PDF statistics:
- 230 PDF objects out of 1000 (max. 8388607)
- 198 compressed objects within 2 object streams
- 45 named destinations out of 1000 (max. 500000)
- 162 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 152 PDF objects out of 1000 (max. 8388607)
+ 126 compressed objects within 2 object streams
+ 26 named destinations out of 1000 (max. 500000)
+ 80 words of extra memory for PDF output out of 10000 (max. 10000000)
 

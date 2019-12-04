@@ -15,6 +15,7 @@ nocite: |
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(pgirmess)
+library(car)
 library(pander)
 library(scales)  # for percent
 library(tidyverse)
@@ -53,7 +54,8 @@ institution_data <- read_spss('InstLevel.sav') %>%
   filter(is.na(IL_PARTIC_COED_WOMEN) | IL_PARTIC_COED_WOMEN == 0 ) %>% # only schools with no female participants in coed
   select(-contains("COED")) %>% # ignore variables with the word "coed"
   filter(!is.na(HDCOACH_SALARY_MEN)) %>% # filter out NA
-  filter(!is.na(HDCOACH_SALARY_WOMEN))  # filter out NA
+  filter(!is.na(HDCOACH_SALARY_WOMEN)) %>% # filter out NA
+  type.convert()
 
 ncaa.div.i_data <- institution_data %>%
   filter(grepl('NCAA Division I-', Classification)) # only NCAA division 1
@@ -74,7 +76,7 @@ gender.separated_data <- bind_rows(
 
 # Introduction
 <!-- %TODO Briefly give meaning to your project – what is the background and why is this project important?  (20 points) -->
-While it seems to be common knownledge that some of the highest paid public employees are college sports teams coaches, less is known about the salaries of college-level sports coaches in general. This project examined predictors of head coach salaries of sports teams at four-year colleges and universities in the United States. We used the institution-level data from the Equity in Athletics Survey, Year 2017-2018, from the U.S. Department of Education Office of Postsecondary Education [-@EADA2018]. Our analysis focused on the differences of head coach salaries between male and female teams, of classification, and of the number of student participants at an institution level.
+While it seems to be common knownledge that some of the highest paid public employees are college sports teams coaches, less is known about the salaries of college-level sports coaches in general. This project examined predictors of head coach salaries of sports teams at four-year colleges and universities in the United States. We used the institution-level data from the Equity in Athletics Survey, Year 2017-2018, from the U.S. Department of Education Office of Postsecondary Education [-@EADA2018]. Our analysis focused on the differences of head coach salaries between male and female teams, of classification, and of the number of student participants at an institution level. The classification consists of the athletic association, the division and subdivisions if applicable, such as NCAA Division I-FBS, NCAA Division I-FCS and NCAA Division I without football.
 
 The full data set listed completed surveys for 2079 institutions. The 578 two-year colleges were excluded, as well as the 120 four-year schools with coed teams and 18 other institutions with missing values for head coach salaries. Our working data set had 1363 four-year institutions without coed sports teams.
 
@@ -84,7 +86,9 @@ We examined whether the classifications and the gender of the team had effects o
 
 # Methods
 <!-- %TODO State and explain the methodology used to test the hypotheses.  (20 points) -->
-Data was analyzed using R version 3.6.1 (2019-07-05) [@rlang]. Data is described using counts (percentage) for categorical variables and mean (standard deviation) for continuous variables.
+Data was analyzed using R version 3.6.1 (2019-07-05) [@rlang]. The data was described using counts (percentage) for categorical variables and mean (standard deviation) for continuous variables.
+
+To examine the interactions of gender and classification, a two-way ANOVA was used. A Brown-Forsythe-Levene Test for homogeneity of variances was conducted on the variances of the classifications. After an examination of the residuals, a Kruskal-Wallis was used to test if there are differences between the classifications, and the posthoc Kruskal-Wallis procedure was used for pairwise comparisons.
 
 # Results
 ## Description of Data
@@ -135,7 +139,8 @@ gender.separated_data %>%
                                 color = "grey"), 
     panel.grid.minor = element_line(size = 0.1, linetype = 'solid',
                                 color = "grey")
-  )
+  ) +
+  scale_x_continuous(labels = comma)
 ```
 
 
@@ -169,19 +174,31 @@ gender.separated_data %>%
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
   scale_y_continuous(labels = comma)
 ```
-```{r testing ANOVA assumptions}
+
+While this profile plot shows interaction effects, upon visual inspection, it seems to be limited to the three NCAA Division I classifications: NCAA Division I without football, NCAA Division I-FBS, and NCAA Division I-FCS. In those three cases, head coaches for men's teams have higher salaries, especially in the case of NCAA Division I-FBS.
+
+To check the assumptions of the ANOVA model, we examined the variance across classifications to see if the variance was constant and the normality of the residuals.
+
+```{r classification variance test}
+gender.separated_data %$% leveneTest(Salary ~ Classification, center = median) -> classification.variance.results
+```
+The Brown-Forsythe-Levene Test for Homogeneity of Variances resulted in a test statistic of \(F_0 = `r classification.variance.results$"F value"[1] %>% round(digits=2)`\) (\(`r classification.variance.results$"Pr(>F)"[1] %>% p.value.string`\)), so there is sufficient evidence to suggest that at least one of the classifications' salaries have a variance different from the others.
+
+Upon a visual examination of the residuals and the q-q plot, it is also clear that the normality assumptions of the residuals was not satisfied.
+```{r ANOVA assumptions}
 classification.gender.interaction.results %>% almost_sas()
 ```
 
 ```{r Kruskal Wallis classification}
 classification.kw.test <- gender.separated_data %$% kruskal.test(Salary ~ Classification) %>% tidy()
 ```
-The Kruskal Wallis test resulted in a test statistic \(H = `r classification.kw.test$statistic`\) (\(`r classification.kw.test$p.value %>% p.value.string`\)), so there is sufficient evidence to suggest that at least one classification is different from the others. Thus, the posthoc procedure for the Kruskal-Wallis test was completed to find pairwise differences between the classifications.
-
+The Kruskal-Wallis test on the salaries grouped by classifications resulted in a test statistic \(H = `r classification.kw.test$statistic %>% round(digits=2)`\) (\(`r classification.kw.test$p.value %>% p.value.string`\)), so there is sufficient evidence to suggest that at least one classification is different from the others. Thus, the posthoc procedure for the Kruskal-Wallis test was completed to find pairwise differences between the classifications.
 
 ```{r posthoc Kruskal Wallis}
 classification.kw.posthoc <- gender.separated_data %$% kruskalmc(Salary ~ Classification)
 ```
+
+From the 153 possible pairwise comparisons, 91 resulted in significant difference. Complete results are not included, but these are the summaries regarding the NCAA Division I: NCAA Division I-FBS had a significant difference from the 17 other classifications, NCAA Division I-FCS had a significant different from 16 other classifications, NCAA Division I without football the only exception, and similarly with NCAA Division I without football, the only non-significant difference was with NCAA Division I-FCS.
 
 ```{r linear regression participants}
 
@@ -194,7 +211,10 @@ classification.kw.posthoc <- gender.separated_data %$% kruskalmc(Salary ~ Classi
 # Conclusion
 <!-- %TODO Restate the results in terms of the larger picture; state limitations and opportunities for future research (20 points) -->
 
+Examining the interaction effects between classification and gender, reveleated that the NCAA Division I had the most differences between male and female head coaches. Furthermore, it appears that the NCAA Division I, with its different subdivisions (FBS, FCS, without football) were each different from all of the remaining classifications. This makes sense as there are different funding allowances between these subdivisions, but only between football teams. A future study might investigate the head coach salaries of collegiate football head coaches separately from the other sports or compare head coaches across classification and sport. Perhaps the sport of football is where the greatest gender disparity of salary exists.
+
 Our data set contained only the averages of head coach salaries of a given institution, so we were unable to capture any variance within an institution. Additionally, this study only used the surveys from one year and future studies should investigate the salaries over multiple years.
 
+This was an initial study of salaries of head coaches of collegiate sports teams. While there is more work to be done, we believe we have paved the way in identifying important factors of their salaries, and we hope others will continue the investigation.
 
 # References
