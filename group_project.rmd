@@ -62,11 +62,11 @@ ncaa.div.i_data <- institution_data %>%
 
 men_data <- institution_data %>%
   select(-contains("WOMEN")) %>% 
-  rename(Salary = HDCOACH_SALARY_MEN, IL_PARTIC = IL_PARTIC_MEN)
+  rename(Salary = HDCOACH_SALARY_MEN, Participation = IL_PARTIC_MEN)
 
 women_data <- institution_data %>%
   select(-contains("_MEN")) %>%
-  rename(Salary = HDCOACH_SALARY_WOMEN, IL_PARTIC = IL_PARTIC_WOMEN)
+  rename(Salary = HDCOACH_SALARY_WOMEN, Participation = IL_PARTIC_WOMEN)
 
 gender.separated_data <- bind_rows(
   men_data %>% add_column(Gender = "Men"),

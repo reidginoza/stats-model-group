@@ -82,8 +82,9 @@ gender.separated_data <- bind_rows(
 # Notes for Kruskal-Wallis posthoc comparison 
 ```{r}
 classification.kw.posthoc <- gender.separated_data %$% kruskalmc(Salary ~ Classification)
+classification.kw.posthoc[[3]] %>% as_tibble(rownames = "Comparison") -> classification.pairwise.comparisons
 ```
-`r classification.kw.posthoc[[3]] %>% pander(style = "rmarkdown")`
+
 
 ```{r Notes to self, include=FALSE}
 ##### All 4-year Institutions
