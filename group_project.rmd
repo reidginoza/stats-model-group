@@ -62,11 +62,11 @@ ncaa.div.i_data <- institution_data %>%
 
 men_data <- institution_data %>%
   select(-contains("WOMEN")) %>% 
-  rename(Salary = HDCOACH_SALARY_MEN, IL_PARTIC = IL_PARTIC_MEN)
+  rename(Salary = HDCOACH_SALARY_MEN, Participation = IL_PARTIC_MEN)
 
 women_data <- institution_data %>%
   select(-contains("_MEN")) %>%
-  rename(Salary = HDCOACH_SALARY_WOMEN, IL_PARTIC = IL_PARTIC_WOMEN)
+  rename(Salary = HDCOACH_SALARY_WOMEN, Participation = IL_PARTIC_WOMEN)
 
 gender.separated_data <- bind_rows(
   men_data %>% add_column(Gender = "Men"),
@@ -185,6 +185,7 @@ gender.separated_data %$% leveneTest(Salary ~ Classification, center = median) -
 The Brown-Forsythe-Levene Test for Homogeneity of Variances resulted in a test statistic of \(F_0 = `r classification.variance.results$"F value"[1] %>% round(digits=2)`\) (\(`r classification.variance.results$"Pr(>F)"[1] %>% p.value.string`\)), so there is sufficient evidence to suggest that at least one of the classifications' salaries have a variance different from the others.
 
 Upon a visual examination of the residuals and the q-q plot, it is also clear that the normality assumptions of the residuals was not satisfied.
+
 ```{r ANOVA assumptions}
 classification.gender.interaction.results %>% almost_sas()
 ```
