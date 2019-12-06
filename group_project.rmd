@@ -1,7 +1,7 @@
 ---
 title: "Stats Modeling Project"
 author: "Group 5: Xin Jin, Reid Ginoza, Heidi Lovejoy"
-date: "11/18/2019"
+date: "12/8/2019"
 # header-includes:
 #    - \usepackage{amsmath, amssymb}
    # - \usepackage{natbib}
@@ -44,7 +44,7 @@ p.value.string = function(p.value){
 }
 ```
 
-```{r import data}
+```{r import data, echo=FALSE}
 institution_data <- read_spss('InstLevel.sav') %>%
   select(institution_name, state_cd, ClassificationCode, Classification=classification_name, sector_cd, sector_name, HDCOACH_SALARY_MEN, HDCOACH_SALARY_WOMEN, IL_PARTIC_MEN, IL_PARTIC_WOMEN, IL_PARTIC_COED_MEN, IL_PARTIC_COED_WOMEN) %>%
   filter(grepl('4-year', sector_name))  %>% # only 4-year Schools
@@ -53,7 +53,8 @@ institution_data <- read_spss('InstLevel.sav') %>%
   select(-contains("COED")) %>% # ignore variables with the word "coed"
   filter(!is.na(HDCOACH_SALARY_MEN)) %>% # filter out NA
   filter(!is.na(HDCOACH_SALARY_WOMEN)) %>% # filter out NA
-  type.convert()
+  type.convert()  # makes ints and factors
+
 ncaa.div.i_data <- institution_data %>%
   filter(grepl('NCAA Division I-', Classification)) # only NCAA division 1
 men_data <- institution_data %>%
@@ -118,7 +119,7 @@ tribble(
 ) %>% kable(booktabs = T) -> summary.table.text
 ```
 `r summary.table.text`
-```{r categorical variables description}
+```{r categorical variables description, echo=FALSE}
 institution_data %>% group_by(Classification) %>% summarize(Count = n()) %>%
   mutate(Percentage = percent(Count / 1363)) %>% kable(booktabs = T)
 ```
@@ -140,7 +141,6 @@ gender.separated_data %>%
   scale_x_continuous(labels = comma)
 ```
 
-
 ## Analysis Results
 <!-- %TODO Analysis results (order of results should correspond to hypotheses listed).  (20 points) -->
 
@@ -152,7 +152,10 @@ gender.separated_data %>%
 
 ```{r twoway ANOVA interaction between classification and gender}
 classification.gender.interaction.results <- gender.separated_data %$% aov(Salary ~ Classification * Gender)
+interaction.summary <- classification.gender.interaction.results %>% summary()
 ```
+
+An ANOVA model with gender and classification models resulted in a test statistic for interactions of \(F_0 = `r interaction.summary[[1]][["F value"]][3] %>% round(digits=2)`\) (\(`r interaction.summary[[1]][["Pr(>F)"]][3] %>% p.value.string()`\)). There was sufficient evidence to suggest that there are interaction effects between gender and classification.
 
 ```{r profile plots, echo=FALSE}
 gender.separated_data %>% 
@@ -194,7 +197,7 @@ The Kruskal-Wallis test on the salaries grouped by classifications resulted in a
 classification.kw.posthoc <- gender.separated_data %$% kruskalmc(Salary ~ Classification)
 ```
 
-From the 153 possible pairwise comparisons, 91 resulted in significant difference. Complete results are not included, but these are the summaries regarding the NCAA Division I: NCAA Division I-FBS had a significant difference from the 17 other classifications, NCAA Division I-FCS had a significant different from 16 other classifications, NCAA Division I without football the only exception, and similarly with NCAA Division I without football, the only non-significant difference was with NCAA Division I-FCS.
+From the 153 possible pairwise comparisons, 91 resulted in significant difference. Complete results are not included, but of particular interest is the NCAA Division I: NCAA Division I-FBS had a significant difference from all of the 17 other classifications, NCAA Division I-FCS had a significant different from 16 other classifications, NCAA Division I without football the only exception, and similarly, with NCAA Division I without football, the only non-significant difference was with NCAA Division I-FCS.
 
 ```{r linear regression participants}
 ```
@@ -210,5 +213,10 @@ Examining the interaction effects between classification and gender, reveleated 
 Our data set contained only the averages of head coach salaries of a given institution, so we were unable to capture any variance within an institution. Additionally, this study only used the surveys from one year and future studies should investigate the salaries over multiple years.
 
 This was an initial study of salaries of head coaches of collegiate sports teams. While there is more work to be done, we believe we have paved the way in identifying important factors of their salaries, and we hope others will continue the investigation.
+
+# Session Info
+```{r session info}
+sessionInfo()
+```
 
 # References
