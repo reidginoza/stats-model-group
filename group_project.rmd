@@ -26,6 +26,7 @@ library(kableExtra) # for tables
 library(magrittr)  # provides more pipe oeprators
 library(haven)
 # options(knitr.table.format = "latex")
+library(alr3) #for pureErrorANOVA
 almost_sas <- function(aov.results){
   par(mfrow=c(2,2))
   plot(aov.results, which=1)
@@ -54,7 +55,6 @@ institution_data <- read_spss('InstLevel.sav') %>%
   filter(!is.na(HDCOACH_SALARY_MEN)) %>% # filter out NA
   filter(!is.na(HDCOACH_SALARY_WOMEN)) %>% # filter out NA
   type.convert()  # makes ints and factors
-
 ncaa.div.i_data <- institution_data %>%
   filter(grepl('NCAA Division I-', Classification)) # only NCAA division 1
 men_data <- institution_data %>%
@@ -71,24 +71,22 @@ gender.separated_data <- bind_rows(
 
 # Introduction
 <!-- %TODO Briefly give meaning to your project – what is the background and why is this project important?  (20 points) -->
-Many Americans are aware that college sports teams coaches are among the highest paid employees on college and university rosters, but less is known about the salaries of college-level sports coaches. In this project, we examined institution-level data from the Equity in Athletics Survey, sample year 2017-2018, from the U.S. Department of Education Office of Postsecondary Education [-@EADA2018]. In this analysis we investigated potential predictors for salaries of sports team head coaches at four-year colleges and universities in the United States. This project focuses on differences of salaries between head coaches of male teams and female teams; salary diversity between division classifications; and the effects of the number of student participants (i.e. athletes) on head coach salaries. Classifications are defined according to the athletic association (such as NAIA, NCAA, etc) and divisions or subdivisions where applicable (e.g. NCAA Division I-FBS, NCAA Division I-FCS, NCAA Division I without football).
+Many Americans are aware that college sports teams coaches are among the highest paid employees on college and university rosters, but less is known about the actual salaries of college-level sports coaches. In this project, we examined institution-level data from the Equity in Athletics Survey, sample year 2017-2018, from the U.S. Department of Education Office of Postsecondary Education [-@EADA2018]. In this analysis we investigated potential predictors for salaries of sports team head coaches at four-year colleges and universities in the United States. This project focuses on differences of salaries between head coaches of male teams and female teams; salary diversity between division classifications; and the effects of the number of student participants (i.e. athletes) on head coach salaries. Classifications are defined according to the athletic association (such as NAIA, NCAA, etc) and divisions or subdivisions where applicable (e.g. NCAA Division I-FBS, NCAA Division I-FCS, NCAA Division I without football).
 
 The full data set listed completed surveys for 2079 institutions. Excluded were the 578 two-year colleges, the 120 four-year schools with co-ed teams, and 18 institutions with missing values for head coach salaries. Our working data set had 1363 four-year institutions without co-ed sports teams. 
 
 # Hypotheses
 <!-- %TODO Clearly state the hypotheses being tested. (20 points) -->
-Overall, we examined whether school classification and gender of the teams affect head coach salaries. To do this, we first tested the equality of variances of head coach salaries for male teams versus female teams: \(H_0\): \(\sigma^2_{male} = \sigma^2_{female}\); \(H_1\): \(\sigma^2_{male} \ne \sigma^2_{female}\). As noted in the Results section below, we concluded that this data does not meet the assumption of equal variances for parametric testing of means, so we went on to test the equality of the medians: \(H_0\): \(M_{male} = M_{female}\);
+Overall, we examined whether school classification and/or gender of the teams affect head coach salaries. To do this, we first tested the equality of variances of head coach salaries for male teams versus female teams: \(H_0\): \(\sigma^2_{men} = \sigma^2_{women}\); \(H_1\): \(\sigma^2_{men} \ne \sigma^2_{women}\). As noted in the Results section below, we concluded that this data does not meet the assumption of equal variances for parametric testing of means, so we went on to test the equality of the medians: \(H_0\): \(M_{male} = M_{female}\);
 \(H_1\): \(M_{male} \ne M_{female}\). Next, we checked for interaction effects between classification and gender of team:  \(H_0\): there is not an interaction between classification and gender; \(H_1\): there is an interaction between classification and gender. We also assessed the homogeneity of variances between the classifications: \(H_0\): \(\sigma^2_{DivI} = \sigma^2_{DivI-FBS} = \sigma^2_{DivI-FCS} = ...= \sigma^2_{n=18}\); \(H_1\): at least one is different.  Based on the results of this test, we then moved forward with testing for a difference in the median salaries of head coaches between the various classifications: \(H_0\): \(M_{DivI} = M_{DivI-FBS} = M_{DivI-FCS} = ...= M_{n=18}\); \(H_1\): at least one is different. 
 <!-- Maybe find a better way to write this out these last two while still ensuring their clarity -->
 We also investigated whether the number of participants institution-wide predicts head coach salaries: \(H_0\): \(\beta = 0 \); \(H_1\): \(\beta \ne 0 \). Finally, we tested the appropriateness of a linear regression model:  \(H_0\): a linear regression model is appropriate; \(H_1\): a linear regression model is not appropriate.
-
-<!-- NOTE: These are 7 hypotheses, but note email chain for eventually getting rid of 2 -->
 
 # Methods
 <!-- %TODO State and explain the methodology used to test the hypotheses.  (20 points) -->
 Data was analyzed using R version 3.6.1 (2019-07-05) [@rlang]. The data was described using counts (percentage) for categorical variables and mean (standard deviation) for continuous variables. 
 
-To assess the homogeneity of variances for salaries of head coaches of male teams versus female teams, we employed the testing procedure utilizing the F-distribution. Because the results of this test suggest there is not equal variances, we next examined the salary medians using the Wilcoxon Rank Sum Test. To examine the interactions of gender and classification, a two-way ANOVA was used. A Brown-Forsythe-Levene Test for homogeneity of variances was conducted on the variances of the classifications. After an examination of the residuals, a Kruskal-Wallis was used to test if there are differences between the classifications, and the posthoc Kruskal-Wallis procedure was used for pairwise comparisons.
+To assess the homogeneity of variances for salaries of head coaches of male teams versus female teams, we employed the testing procedure utilizing the F-distribution. Because the results of this test suggest there is not equal variances, we next examined the salary medians using the Wilcoxon Rank Sum Test. To analyze the interactions of gender and classification, a two-way ANOVA was completed. A Brown-Forsythe-Levene Test for homogeneity of variances was conducted on the variances of the classifications. After an examination of the residuals, a Kruskal-Wallis was used to test if there are differences between the classifications, and the posthoc Kruskal-Wallis procedure was used for pairwise comparisons. <!-- Add methodology for linear regression -->
 
 # Results
 ## Description of Data
@@ -99,6 +97,7 @@ men.salary_mean <- institution_data$HDCOACH_SALARY_MEN %>% mean() %>% round(digi
 men.salary_sd <- institution_data$HDCOACH_SALARY_MEN %>% sd() %>% round(digits = 2) %>% prettyNum(big.mark=",", trim=TRUE, digits = 8, scientific = FALSE)
 women.salary_mean <- institution_data$HDCOACH_SALARY_WOMEN %>% mean() %>% round(digits = 2) %>% prettyNum(big.mark=",", trim=TRUE, digits = 7, scientific = FALSE)
 women.salary_sd <- institution_data$HDCOACH_SALARY_WOMEN %>% sd() %>% round(digits = 2) %>% prettyNum(big.mark=",", trim=TRUE, digits = 7, scientific = FALSE)
+total.salary_data <- institution_data %>% mutate(Total.Salary = HDCOACH_SALARY_MEN + HDCOACH_SALARY_WOMEN) %>% select (Total.Salary)
 total.salary_mean <- gender.separated_data$Salary %>% mean() %>% round(digits = 2) %>% prettyNum(big.mark=",", trim=TRUE, digits = 7, scientific = FALSE)
 total.salary_sd <- gender.separated_data$Salary %>% sd() %>% round(digits = 2) %>% prettyNum(big.mark=",", trim=TRUE, digits = 8, scientific = FALSE)
 men.part_mean <- institution_data$IL_PARTIC_MEN %>% mean() %>% round(digits = 2)
@@ -118,6 +117,8 @@ tribble(
   "Participation--Total", total.part_mean, total.part_sd
 ) %>% kable(booktabs = T) -> summary.table.text
 ```
+
+
 `r summary.table.text`
 ```{r categorical variables description, echo=FALSE}
 institution_data %>% group_by(Classification) %>% summarize(Count = n()) %>%
@@ -144,11 +145,21 @@ gender.separated_data %>%
 ## Analysis Results
 <!-- %TODO Analysis results (order of results should correspond to hypotheses listed).  (20 points) -->
 
-```{r BFL gender}
+```{r Variance gender}
+gender.variance.test <- var.test(institution_data$HDCOACH_SALARY_MEN, institution_data$HDCOACH_SALARY_WOMEN, alternative = "two.sided", conf.level = 0.95, ratio = 1)
+
+gender.var.p.val <- p.value.string(gender.variance.test$p.value)
 ```
 
+The test for equality of variances between salaries of head coaches of men's versus women's teams resulted in a test statistic of \(F_0 = `r round(gender.variance.test$statistic, digits=2)`\).  (\(`r gender.var.p.val`\)) and critical value of \(F_{\alpha /2, df_{men}, df_{women}} \) = 1.081, using \(\alpha\) = 0.05. There was sufficient evidence to suggest a difference between the variances of the two groups.
+
 ```{r Wilcoxon gender}
+gender.wilcoxon.test <- wilcox.test(institution_data$HDCOACH_SALARY_MEN, institution_data$HDCOACH_SALARY_WOMEN, alternative = "greater", paired = FALSE)
+
+gender.wilcoxon.p.val <- p.value.string(gender.wilcoxon.test$p.value)
 ```
+
+Testing to see if salaries of head coaches of men's teams tend to be greater than those of head coaches of women's teams resulted in a test statistic of \(T_0 = `r round(gender.wilcoxon.test$statistic, digits=2)`\) (\(`r gender.wilcoxon.p.val`\)).There was sufficient evidence to suggest that salaries for head coaches of men's teams are greater than the salaries for head coaches of women's teams.
 
 ```{r twoway ANOVA interaction between classification and gender}
 classification.gender.interaction.results <- gender.separated_data %$% aov(Salary ~ Classification * Gender)
@@ -200,10 +211,31 @@ classification.kw.posthoc <- gender.separated_data %$% kruskalmc(Salary ~ Classi
 From the 153 possible pairwise comparisons, 91 resulted in significant difference. Complete results are not included, but of particular interest is the NCAA Division I: NCAA Division I-FBS had a significant difference from all of the 17 other classifications, NCAA Division I-FCS had a significant different from 16 other classifications, NCAA Division I without football the only exception, and similarly, with NCAA Division I without football, the only non-significant difference was with NCAA Division I-FCS.
 
 ```{r linear regression participants}
+total.salary <- (institution_data$HDCOACH_SALARY_MEN + institution_data$HDCOACH_SALARY_WOMEN)
+total.participants <-(institution_data$IL_PARTIC_MEN + institution_data$IL_PARTIC_WOMEN)
+
+participants.regression <- tibble(total.salary, total.participants)
+
+participants.regression_model <- lm(total.salary ~ total.participants, data=participants.regression)
+participants.regression_coef <- coefficients(participants.regression_model)
+participants.regression_summary <- summary(participants.regression_model)
+participants.regression_t <- as_tibble(participants.regression_summary[[4]])
 ```
 
+The resulting regression model is 
+\[ \hat{y} = `r round(participants.regression_coef[[1]], digits=2)` + `r round(participants.regression_coef[[2]], digits=2)`x \]
+
+The test for significance of a regression line using the number of student participants resulted in a test statistic of \(t_0 = `r round(participants.regression_t$"t value"[2], digits=2)`\) (\(`r p.value.string(participants.regression_t$"Pr(>|t|)"[2])`\)).There was There is sufficient evidence to suggest that the regression line is significant.
+
 ```{r linear regression appropriate}
+participants.regression_lack <- pureErrorAnova(participants.regression_model)
 ```
+
+The lack of fit ANOVA table is as follows:
+`r pander(participants.regression_lack, style='rmarkdown')`
+
+Testing whether or not a linear regression model is appropriate resulted in test statistic \(F_0 = `r round(participants.regression_lack$"F value"[3], digits=2)`\) (\(`r p.value.string(participants.regression_lack$"Pr(>F)"[3])`\). There is sufficient evidence to suggest that a linear regression model is not appropriate.
+
 
 # Conclusion
 <!-- %TODO Restate the results in terms of the larger picture; state limitations and opportunities for future research (20 points) -->
