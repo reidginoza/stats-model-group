@@ -1,5 +1,5 @@
 ---
-title: "Factors of Head Coach Salaries of Collegiate Sports Teams"
+title: "Predictors of Salaries of Head Coaches of US Collegiate Sports Teams"
 author: "Group 5: Xin Jin, Reid Ginoza, Heidi Lovejoy"
 date: "12/8/2019"
 # header-includes:
@@ -7,7 +7,7 @@ date: "12/8/2019"
    # - \usepackage{natbib}
    # - \usepackage{hyperref}
 output: pdf_document
-bibliography: 
+bibliography: bibliography.bib
 nocite: | 
   @rlang
 ---
