@@ -1,5 +1,5 @@
 ---
-title: "Stats Modeling Project"
+title: "Factors of Head Coach Salaries of Collegiate Sports Teams"
 author: "Group 5: Xin Jin, Reid Ginoza, Heidi Lovejoy"
 date: "12/8/2019"
 # header-includes:
@@ -55,14 +55,18 @@ institution_data <- read_spss('InstLevel.sav') %>%
   filter(!is.na(HDCOACH_SALARY_MEN)) %>% # filter out NA
   filter(!is.na(HDCOACH_SALARY_WOMEN)) %>% # filter out NA
   type.convert()  # makes ints and factors
+
 ncaa.div.i_data <- institution_data %>%
   filter(grepl('NCAA Division I-', Classification)) # only NCAA division 1
+
 men_data <- institution_data %>%
   select(-contains("WOMEN")) %>% 
   rename(Salary = HDCOACH_SALARY_MEN, Participation = IL_PARTIC_MEN)
+
 women_data <- institution_data %>%
   select(-contains("_MEN")) %>%
   rename(Salary = HDCOACH_SALARY_WOMEN, Participation = IL_PARTIC_WOMEN)
+
 gender.separated_data <- bind_rows(
   men_data %>% add_column(Gender = "Men"),
   women_data %>% add_column(Gender = "Women")
@@ -71,9 +75,11 @@ gender.separated_data <- bind_rows(
 
 # Introduction
 <!-- %TODO Briefly give meaning to your project – what is the background and why is this project important?  (20 points) -->
-Many Americans are aware that college sports teams coaches are among the highest paid employees on college and university rosters, but less is known about the actual salaries of college-level sports coaches. In this project, we examined institution-level data from the Equity in Athletics Survey, sample year 2017-2018, from the U.S. Department of Education Office of Postsecondary Education [-@EADA2018]. In this analysis we investigated potential predictors for salaries of sports team head coaches at four-year colleges and universities in the United States. This project focuses on differences of salaries between head coaches of male teams and female teams; salary diversity between division classifications; and the effects of the number of student participants (i.e. athletes) on head coach salaries. Classifications are defined according to the athletic association (such as NAIA, NCAA, etc) and divisions or subdivisions where applicable (e.g. NCAA Division I-FBS, NCAA Division I-FCS, NCAA Division I without football).
+While it seems to be common knownledge that many of the highest paid US public employees are college sports teams head coaches [@busin2018], less is known about the salaries of college-level sports head coaches in general. Is head coaching a lucrative career for all, or only a select few? What knowledge can we gain about head coaches when we include private schools and other divisions and classifications?
 
-The full data set listed completed surveys for 2079 institutions. Excluded were the 578 two-year colleges, the 120 four-year schools with co-ed teams, and 18 institutions with missing values for head coach salaries. Our working data set had 1363 four-year institutions without co-ed sports teams. 
+In this project, we examined institution-level data from the Equity in Athletics Survey, sample year 2017-2018, from the U.S. Department of Education Office of Postsecondary Education [-@EADA2018]. In this analysis we investigated potential predictors for salaries of sports team head coaches at four-year colleges and universities in the United States. This project focused on differences of salaries between head coaches of male teams and female teams; salary diversity between division classifications; and the effects of the number of student participants (i.e. athletes) on head coach salaries. Classifications were defined by the Equity in Athletics Survey according to the athletic association (such as NAIA, NCAA, etc) and divisions or subdivisions where applicable (e.g. NCAA Division I-FBS, NCAA Division I-FCS, NCAA Division I without football).
+
+The full data set listed completed surveys for 2079 institutions. Excluded were the 578 two-year colleges, the 120 four-year schools with co-ed teams, and 18 institutions with missing values for head coach salaries. Our working data set had 1363 four-year institutions without co-ed sports teams.
 
 # Hypotheses
 <!-- %TODO Clearly state the hypotheses being tested. (20 points) -->
@@ -95,18 +101,24 @@ To assess the homogeneity of variances for salaries of head coaches of male team
 # Couldn't figure out how to do what I wanted, so I made the table "by hand"
 men.salary_mean <- institution_data$HDCOACH_SALARY_MEN %>% mean() %>% round(digits = 2) %>% prettyNum(big.mark=",", trim=TRUE, digits = 8, scientific = FALSE)
 men.salary_sd <- institution_data$HDCOACH_SALARY_MEN %>% sd() %>% round(digits = 2) %>% prettyNum(big.mark=",", trim=TRUE, digits = 8, scientific = FALSE)
+
 women.salary_mean <- institution_data$HDCOACH_SALARY_WOMEN %>% mean() %>% round(digits = 2) %>% prettyNum(big.mark=",", trim=TRUE, digits = 7, scientific = FALSE)
 women.salary_sd <- institution_data$HDCOACH_SALARY_WOMEN %>% sd() %>% round(digits = 2) %>% prettyNum(big.mark=",", trim=TRUE, digits = 7, scientific = FALSE)
+
 total.salary_data <- institution_data %>% mutate(Total.Salary = HDCOACH_SALARY_MEN + HDCOACH_SALARY_WOMEN) %>% select (Total.Salary)
 total.salary_mean <- gender.separated_data$Salary %>% mean() %>% round(digits = 2) %>% prettyNum(big.mark=",", trim=TRUE, digits = 7, scientific = FALSE)
 total.salary_sd <- gender.separated_data$Salary %>% sd() %>% round(digits = 2) %>% prettyNum(big.mark=",", trim=TRUE, digits = 8, scientific = FALSE)
+
 men.part_mean <- institution_data$IL_PARTIC_MEN %>% mean() %>% round(digits = 2)
 men.part_sd <- institution_data$IL_PARTIC_MEN %>% sd() %>% round(digits = 2)
+
 women.part_mean <- institution_data$IL_PARTIC_WOMEN %>% mean() %>% round(digits = 2)
 women.part_sd <- institution_data$IL_PARTIC_WOMEN %>% sd() %>% round(digits = 2)
+
 total.participation_data <- institution_data %>% mutate(Total.Participation = IL_PARTIC_MEN + IL_PARTIC_WOMEN) %>% select (Total.Participation)
 total.part_mean <- total.participation_data$Total.Participation %>% mean() %>% round(digits = 2)
 total.part_sd <- total.participation_data$Total.Participation %>% sd() %>% round(digits = 2)
+
 tribble(
   ~Variable, ~Mean, ~SD,
   "Head Coach--Men's Salary", men.salary_mean, men.salary_sd,
@@ -121,8 +133,11 @@ tribble(
 
 `r summary.table.text`
 ```{r categorical variables description, echo=FALSE}
+gender.separated_data %>% group_by(Classification) %>% summarize('Salary Mean' = format(mean(Salary), nsmall = 2, big.mark = ','), 'Salary SD'= format(sd(Salary), nsmall = 2, big.mark = ',')) -> grouped.salary
 institution_data %>% group_by(Classification) %>% summarize(Count = n()) %>%
-  mutate(Percentage = percent(Count / 1363)) %>% kable(booktabs = T)
+  mutate(Percentage = percent(Count / 1363)) -> grouped.counts
+
+inner_join(grouped.counts, grouped.salary, by='Classification') %>% kable(booktabs = T)
 ```
 
 ```{r describe head coach salaries, echo=FALSE, message=FALSE}
