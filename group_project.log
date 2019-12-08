@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=pdflatex 2019.10.27)  7 DEC 2019 20:42
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=pdflatex 2019.10.27)  7 DEC 2019 21:07
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -457,42 +457,6 @@ Package: framed 2011/10/22 v 0.96: framed or shaded text with page breaks
 \fb@frh=\dimen125
 \FrameRule=\dimen126
 \FrameSep=\dimen127
-) (/Users/macowner/Library/TinyTeX/texmf-dist/tex/latex/tools/longtable.sty
-Package: longtable 2019/02/06 v4.12 Multi-page Table package (DPC)
-\LTleft=\skip48
-\LTright=\skip49
-\LTpre=\skip50
-\LTpost=\skip51
-\LTchunksize=\count116
-\LTcapwidth=\dimen128
-\LT@head=\box30
-\LT@firsthead=\box31
-\LT@foot=\box32
-\LT@lastfoot=\box33
-\LT@cols=\count117
-\LT@rows=\count118
-\c@LT@tables=\count119
-\c@LT@chunks=\count120
-\LT@p@ftn=\toks24
-) (/Users/macowner/Library/TinyTeX/texmf-dist/tex/latex/booktabs/booktabs.sty
-Package: booktabs 2019/10/08 v1.6180339 publication quality tables
-\heavyrulewidth=\dimen129
-\lightrulewidth=\dimen130
-\cmidrulewidth=\dimen131
-\belowrulesep=\dimen132
-\belowbottomsep=\dimen133
-\aboverulesep=\dimen134
-\abovetopsep=\dimen135
-\cmidrulesep=\dimen136
-\cmidrulekern=\dimen137
-\defaultaddspace=\dimen138
-\@cmidla=\count121
-\@cmidlb=\count122
-\@aboverulesep=\dimen139
-\@belowrulesep=\dimen140
-\@thisruleclass=\count123
-\@lastruleclass=\count124
-\@thisrulewidth=\dimen141
 ) (/Users/macowner/Library/TinyTeX/texmf-dist/tex/latex/graphics/graphicx.sty
 Package: graphicx 2017/06/01 v1.1a Enhanced LaTeX Graphics (DPC,SPQR)
 (/Users/macowner/Library/TinyTeX/texmf-dist/tex/latex/graphics/graphics.sty
@@ -505,8 +469,8 @@ File: graphics.cfg 2016/06/04 v1.11 sample graphics configuration
 )
 Package graphics Info: Driver file: pdftex.def on input line 105.
 )
-\Gin@req@height=\dimen142
-\Gin@req@width=\dimen143
+\Gin@req@height=\dimen128
+\Gin@req@width=\dimen129
 ) (/Users/macowner/Library/TinyTeX/texmf-dist/tex/latex/oberdiek/grffile.sty
 Package: grffile 2017/06/30 v1.18 Extended file name support for graphics (HO)
 Package grffile Info: Option `multidot' is set to `true'.
@@ -515,9 +479,45 @@ Package grffile Info: Option `space' is set to `true'.
 Package grffile Info: \Gin@ii of package `graphicx' fixed on input line 494.
 ) (/Users/macowner/Library/TinyTeX/texmf-dist/tex/latex/titling/titling.sty
 Package: titling 2009/09/04 v2.1d maketitle typesetting
-\thanksmarkwidth=\skip52
-\thanksmargin=\skip53
-\droptitle=\skip54
+\thanksmarkwidth=\skip48
+\thanksmargin=\skip49
+\droptitle=\skip50
+) (/Users/macowner/Library/TinyTeX/texmf-dist/tex/latex/booktabs/booktabs.sty
+Package: booktabs 2019/10/08 v1.6180339 publication quality tables
+\heavyrulewidth=\dimen130
+\lightrulewidth=\dimen131
+\cmidrulewidth=\dimen132
+\belowrulesep=\dimen133
+\belowbottomsep=\dimen134
+\aboverulesep=\dimen135
+\abovetopsep=\dimen136
+\cmidrulesep=\dimen137
+\cmidrulekern=\dimen138
+\defaultaddspace=\dimen139
+\@cmidla=\count116
+\@cmidlb=\count117
+\@aboverulesep=\dimen140
+\@belowrulesep=\dimen141
+\@thisruleclass=\count118
+\@lastruleclass=\count119
+\@thisrulewidth=\dimen142
+) (/Users/macowner/Library/TinyTeX/texmf-dist/tex/latex/tools/longtable.sty
+Package: longtable 2019/02/06 v4.12 Multi-page Table package (DPC)
+\LTleft=\skip51
+\LTright=\skip52
+\LTpre=\skip53
+\LTpost=\skip54
+\LTchunksize=\count120
+\LTcapwidth=\dimen143
+\LT@head=\box30
+\LT@firsthead=\box31
+\LT@foot=\box32
+\LT@lastfoot=\box33
+\LT@cols=\count121
+\LT@rows=\count122
+\c@LT@tables=\count123
+\c@LT@chunks=\count124
+\LT@p@ftn=\toks24
 ) (/Users/macowner/Library/TinyTeX/texmf-dist/tex/latex/tools/array.sty
 Package: array 2019/08/31 v2.4l Tabular extension package (FMi)
 \col@sep=\dimen144
@@ -639,31 +639,31 @@ Package xcolor Info: Model `wave' substituted by `hsb' on input line 1371.
 ) (./group_project.aux)
 \openout1 = `group_project.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 143.
-LaTeX Font Info:    ... okay on input line 143.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 143.
-LaTeX Font Info:    ... okay on input line 143.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 143.
-LaTeX Font Info:    ... okay on input line 143.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 143.
-LaTeX Font Info:    ... okay on input line 143.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 143.
-LaTeX Font Info:    ... okay on input line 143.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 143.
-LaTeX Font Info:    ... okay on input line 143.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 143.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 142.
+LaTeX Font Info:    ... okay on input line 142.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 142.
+LaTeX Font Info:    ... okay on input line 142.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 142.
+LaTeX Font Info:    ... okay on input line 142.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 142.
+LaTeX Font Info:    ... okay on input line 142.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 142.
+LaTeX Font Info:    ... okay on input line 142.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 142.
+LaTeX Font Info:    ... okay on input line 142.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 142.
 LaTeX Font Info:    Trying to load font information for TS1+cmr on input line 1
-43.
+42.
 (/Users/macowner/Library/TinyTeX/texmf-dist/tex/latex/base/ts1cmr.fd
 File: ts1cmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
-LaTeX Font Info:    ... okay on input line 143.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 143.
-LaTeX Font Info:    ... okay on input line 143.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 143.
-LaTeX Font Info:    ... okay on input line 143.
+LaTeX Font Info:    ... okay on input line 142.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 142.
+LaTeX Font Info:    ... okay on input line 142.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 142.
+LaTeX Font Info:    ... okay on input line 142.
 LaTeX Font Info:    Trying to load font information for T1+lmr on input line 14
-3.
+2.
 (/Users/macowner/Library/TinyTeX/texmf-dist/tex/latex/lm/t1lmr.fd
 File: t1lmr.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
@@ -702,7 +702,7 @@ File: t1lmr.fd 2009/10/30 v1.6 Font defs for Latin Modern
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
 \AtBeginShipoutBox=\box48
-Package hyperref Info: Link coloring OFF on input line 143.
+Package hyperref Info: Link coloring OFF on input line 142.
 (/Users/macowner/Library/TinyTeX/texmf-dist/tex/latex/hyperref/nameref.sty
 Package: nameref 2019/09/16 v2.46 Cross-referencing by name of section
 
@@ -712,9 +712,9 @@ Package: gettitlestring 2016/05/16 v1.5 Cleanup title references (HO)
 )
 \c@section@level=\count137
 )
-LaTeX Info: Redefining \ref on input line 143.
-LaTeX Info: Redefining \pageref on input line 143.
-LaTeX Info: Redefining \nameref on input line 143.
+LaTeX Info: Redefining \ref on input line 142.
+LaTeX Info: Redefining \pageref on input line 142.
+LaTeX Info: Redefining \nameref on input line 142.
 (./group_project.out) (./group_project.out)
 \@outlinefile=\write4
 \openout4 = `group_project.out'.
@@ -739,37 +739,37 @@ File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
 ))
 LaTeX Font Info:    Trying to load font information for OT1+lmr on input line 1
-84.
+83.
 (/Users/macowner/Library/TinyTeX/texmf-dist/tex/latex/lm/ot1lmr.fd
 File: ot1lmr.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
 LaTeX Font Info:    Trying to load font information for OML+lmm on input line 1
-84.
+83.
 (/Users/macowner/Library/TinyTeX/texmf-dist/tex/latex/lm/omllmm.fd
 File: omllmm.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
 LaTeX Font Info:    Trying to load font information for OMS+lmsy on input line 
-184.
+183.
 (/Users/macowner/Library/TinyTeX/texmf-dist/tex/latex/lm/omslmsy.fd
 File: omslmsy.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
 LaTeX Font Info:    Trying to load font information for OMX+lmex on input line 
-184.
+183.
 (/Users/macowner/Library/TinyTeX/texmf-dist/tex/latex/lm/omxlmex.fd
 File: omxlmex.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10> on input line 184.
+(Font)              <10> on input line 183.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <7> on input line 184.
+(Font)              <7> on input line 183.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <5> on input line 184.
-LaTeX Font Info:    Trying to load font information for U+msa on input line 184
+(Font)              <5> on input line 183.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 183
 .
 (/Users/macowner/Library/TinyTeX/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 184
+LaTeX Font Info:    Trying to load font information for U+msb on input line 183
 .
 (/Users/macowner/Library/TinyTeX/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
@@ -782,42 +782,42 @@ File: "group_project_files/figure-latex/""describe head coach salaries-1".pdf G
 raphic file (type pdf)
 <use "group_project_files/figure-latex/""describe head coach salaries-1".pdf>
 Package pdftex.def Info: "group_project_files/figure-latex/""describe head coac
-h salaries-1".pdf  used on input line 279.
+h salaries-1".pdf  used on input line 281.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 [2]
 
-Package xcolor Warning: Incompatible color definition on input line 284.
+Package xcolor Warning: Incompatible color definition on input line 286.
 
 LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 2
-85.
+87.
 (/Users/macowner/Library/TinyTeX/texmf-dist/tex/latex/lm/t1lmtt.fd
 File: t1lmtt.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
 LaTeX Font Info:    Font shape `T1/lmtt/bx/n' in size <10> not available
-(Font)              Font shape `T1/lmtt/b/n' tried instead on input line 286.
+(Font)              Font shape `T1/lmtt/b/n' tried instead on input line 288.
 
-Package xcolor Warning: Incompatible color definition on input line 290.
-
-
-Package xcolor Warning: Incompatible color definition on input line 290.
+Package xcolor Warning: Incompatible color definition on input line 293.
 
 
-Package xcolor Warning: Incompatible color definition on input line 299.
+Package xcolor Warning: Incompatible color definition on input line 293.
 
 
-Package xcolor Warning: Incompatible color definition on input line 305.
+Package xcolor Warning: Incompatible color definition on input line 302.
 
 
-Package xcolor Warning: Incompatible color definition on input line 305.
+Package xcolor Warning: Incompatible color definition on input line 307.
 
 
-Package xcolor Warning: Incompatible color definition on input line 314.
+Package xcolor Warning: Incompatible color definition on input line 307.
 
 
-Package xcolor Warning: Incompatible color definition on input line 319.
+Package xcolor Warning: Incompatible color definition on input line 316.
 
 
-Package xcolor Warning: Incompatible color definition on input line 319.
+Package xcolor Warning: Incompatible color definition on input line 321.
+
+
+Package xcolor Warning: Incompatible color definition on input line 321.
 
 [3 <./group_project_files/figure-latex/describe head coach salaries-1.pdf>]
 <"group_project_files/figure-latex/""profile plots-1".pdf, id=78, 469.755pt x 3
@@ -826,16 +826,16 @@ File: "group_project_files/figure-latex/""profile plots-1".pdf Graphic file (ty
 pe pdf)
 <use "group_project_files/figure-latex/""profile plots-1".pdf>
 Package pdftex.def Info: "group_project_files/figure-latex/""profile plots-1".p
-df  used on input line 326.
+df  used on input line 328.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 
-Package xcolor Warning: Incompatible color definition on input line 339.
+Package xcolor Warning: Incompatible color definition on input line 341.
 
 
-Package xcolor Warning: Incompatible color definition on input line 343.
+Package xcolor Warning: Incompatible color definition on input line 346.
 
 
-Package xcolor Warning: Incompatible color definition on input line 343.
+Package xcolor Warning: Incompatible color definition on input line 346.
 
 <"group_project_files/figure-latex/""ANOVA assumptions-1".pdf, id=79, 469.755pt
  x 325.215pt>
@@ -843,102 +843,117 @@ File: "group_project_files/figure-latex/""ANOVA assumptions-1".pdf Graphic file
  (type pdf)
 <use "group_project_files/figure-latex/""ANOVA assumptions-1".pdf>
 Package pdftex.def Info: "group_project_files/figure-latex/""ANOVA assumptions-
-1".pdf  used on input line 353.
+1".pdf  used on input line 356.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 
-Package xcolor Warning: Incompatible color definition on input line 355.
+Package xcolor Warning: Incompatible color definition on input line 358.
 
 [4 <./group_project_files/figure-latex/profile plots-1.pdf>]
 
-Package xcolor Warning: Incompatible color definition on input line 359.
+Package xcolor Warning: Incompatible color definition on input line 363.
 
 
-Package xcolor Warning: Incompatible color definition on input line 359.
-
-
-Package xcolor Warning: Incompatible color definition on input line 368.
+Package xcolor Warning: Incompatible color definition on input line 363.
 
 
 Package xcolor Warning: Incompatible color definition on input line 372.
 
 
-Package xcolor Warning: Incompatible color definition on input line 372.
+Package xcolor Warning: Incompatible color definition on input line 376.
 
 
-Package xcolor Warning: Incompatible color definition on input line 383.
+Package xcolor Warning: Incompatible color definition on input line 376.
 
+<"group_project_files/figure-latex/""scatter plot of participants-1".pdf, id=89
+, 469.755pt x 325.215pt>
+File: "group_project_files/figure-latex/""scatter plot of participants-1".pdf G
+raphic file (type pdf)
+<use "group_project_files/figure-latex/""scatter plot of participants-1".pdf>
+Package pdftex.def Info: "group_project_files/figure-latex/""scatter plot of pa
+rticipants-1".pdf  used on input line 387.
+(pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 
-Package xcolor Warning: Incompatible color definition on input line 395.
-
-
-Package xcolor Warning: Incompatible color definition on input line 395.
+Package xcolor Warning: Incompatible color definition on input line 389.
 
 [5 <./group_project_files/figure-latex/ANOVA assumptions-1.pdf>]
+
+Package xcolor Warning: Incompatible color definition on input line 394.
+
+
+Package xcolor Warning: Incompatible color definition on input line 394.
+
+
+Package xcolor Warning: Incompatible color definition on input line 400.
+
 
 Package xcolor Warning: Incompatible color definition on input line 405.
 
 
-Package xcolor Warning: Incompatible color definition on input line 409.
+Package xcolor Warning: Incompatible color definition on input line 405.
 
 
-Package xcolor Warning: Incompatible color definition on input line 409.
-
-[6]
-
-Package xcolor Warning: Incompatible color definition on input line 474.
+Package xcolor Warning: Incompatible color definition on input line 412.
 
 
-Package xcolor Warning: Incompatible color definition on input line 478.
+Package xcolor Warning: Incompatible color definition on input line 416.
 
 
-Package xcolor Warning: Incompatible color definition on input line 478.
+Package xcolor Warning: Incompatible color definition on input line 416.
 
-[7]
-Underfull \hbox (badness 1062) in paragraph at lines 538--543
+[6 <./group_project_files/figure-latex/scatter plot of participants-1.pdf>] [7]
+
+Package xcolor Warning: Incompatible color definition on input line 471.
+
+
+Package xcolor Warning: Incompatible color definition on input line 475.
+
+
+Package xcolor Warning: Incompatible color definition on input line 475.
+
+[8]
+Underfull \hbox (badness 1062) in paragraph at lines 535--540
 []\T1/lmr/m/n/10 Michaels, Matthew. 2018. ``Col-lege foot-ball and bas-ket-ball
  coaches are the highest-paid pub-lic
  []
 
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 555.
-[8]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 555.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 552.
+[9]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 552.
 (./group_project.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 555.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 555.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 552.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 552.
 Package rerunfilecheck Info: File `group_project.out' has not changed.
 (rerunfilecheck)             Checksum: 07D0EDC54BB8E31BDE6CCDCA3A2D9FEF;943.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 555.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 552.
  ) 
 Here is how much of TeX's memory you used:
- 12908 strings out of 494111
- 182187 string characters out of 6170576
- 266155 words of memory out of 5000000
- 16780 multiletter control sequences out of 15000+600000
- 52893 words of font info for 45 fonts, out of 8000000 for 9000
+ 12909 strings out of 494111
+ 182548 string characters out of 6170576
+ 266062 words of memory out of 5000000
+ 16783 multiletter control sequences out of 15000+600000
+ 49898 words of font info for 44 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 31i,7n,37p,389b,341s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 31i,7n,37p,365b,341s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/Users/macowner/Library/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}{/Us
-ers/macowner/Library/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathsy.enc}{/User
-s/macowner/Library/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-rm.enc}{/Users/maco
-wner/Library/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}</Users/macown
-er/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx10.pfb></Users/macowner
-/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx12.pfb></Users/macowner/L
-ibrary/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi10.pfb></Users/macowner/Lib
-rary/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi7.pfb></Users/macowner/Librar
-y/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr10.pfb></Users/macowner/Library/T
-inyTeX/texmf-dist/fonts/type1/public/lm/lmr17.pfb></Users/macowner/Library/Tiny
-TeX/texmf-dist/fonts/type1/public/lm/lmr5.pfb></Users/macowner/Library/TinyTeX/
-texmf-dist/fonts/type1/public/lm/lmr7.pfb></Users/macowner/Library/TinyTeX/texm
-f-dist/fonts/type1/public/lm/lmri10.pfb></Users/macowner/Library/TinyTeX/texmf-
-dist/fonts/type1/public/lm/lmri12.pfb></Users/macowner/Library/TinyTeX/texmf-di
-st/fonts/type1/public/lm/lmsy10.pfb></Users/macowner/Library/TinyTeX/texmf-dist
-/fonts/type1/public/lm/lmsy7.pfb></Users/macowner/Library/TinyTeX/texmf-dist/fo
-nts/type1/public/lm/lmtk10.pfb></Users/macowner/Library/TinyTeX/texmf-dist/font
-s/type1/public/lm/lmtt10.pfb>
-Output written on group_project.pdf (8 pages, 555752 bytes).
+ers/macowner/Library/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}{/User
+s/macowner/Library/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathsy.enc}{/Users/
+macowner/Library/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-rm.enc}</Users/macown
+er/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx12.pfb></Users/macowner
+/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi10.pfb></Users/macowner/L
+ibrary/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi7.pfb></Users/macowner/Libr
+ary/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr10.pfb></Users/macowner/Library
+/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr17.pfb></Users/macowner/Library/Ti
+nyTeX/texmf-dist/fonts/type1/public/lm/lmr5.pfb></Users/macowner/Library/TinyTe
+X/texmf-dist/fonts/type1/public/lm/lmr7.pfb></Users/macowner/Library/TinyTeX/te
+xmf-dist/fonts/type1/public/lm/lmri10.pfb></Users/macowner/Library/TinyTeX/texm
+f-dist/fonts/type1/public/lm/lmri12.pfb></Users/macowner/Library/TinyTeX/texmf-
+dist/fonts/type1/public/lm/lmsy10.pfb></Users/macowner/Library/TinyTeX/texmf-di
+st/fonts/type1/public/lm/lmtk10.pfb></Users/macowner/Library/TinyTeX/texmf-dist
+/fonts/type1/public/lm/lmtt10.pfb>
+Output written on group_project.pdf (9 pages, 688995 bytes).
 PDF statistics:
- 186 PDF objects out of 1000 (max. 8388607)
- 154 compressed objects within 2 object streams
+ 189 PDF objects out of 1000 (max. 8388607)
+ 156 compressed objects within 2 object streams
  32 named destinations out of 1000 (max. 500000)
- 88 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 93 words of extra memory for PDF output out of 10000 (max. 10000000)
 

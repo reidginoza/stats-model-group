@@ -163,8 +163,9 @@ gender.separated_data %>%
 <!-- %TODO Analysis results (order of results should correspond to hypotheses listed).  (20 points) -->
 
 ```{r Variance gender}
-gender.variance.test <- institution_data %$% var.test(HDCOACH_SALARY_MEN, HDCOACH_SALARY_WOMEN, alternative = "two.sided", conf.level = 0.95, ratio = 1)
-
+gender.variance.test <- institution_data %$%
+  var.test(HDCOACH_SALARY_MEN, HDCOACH_SALARY_WOMEN, alternative = "two.sided",
+           conf.level = 0.95, ratio = 1)
 gender.var.p.val <- p.value.string(gender.variance.test$p.value)
 ```
 
@@ -172,7 +173,6 @@ The test for equality of variances between salaries of head coaches of men's ver
 
 ```{r Wilcoxon gender}
 gender.wilcoxon.test <- wilcox.test(institution_data$HDCOACH_SALARY_MEN, institution_data$HDCOACH_SALARY_WOMEN, alternative = "greater", paired = FALSE)
-
 gender.wilcoxon.p.val <- p.value.string(gender.wilcoxon.test$p.value)
 ```
 
@@ -206,7 +206,8 @@ While this profile plot shows interaction effects, upon visual inspection, it se
 To check the assumptions of the ANOVA model, we examined the variance across classifications to see if the variance was constant and the normality of the residuals.
 
 ```{r classification variance test}
-gender.separated_data %$% leveneTest(Salary ~ Classification, center = median) -> classification.variance.results
+gender.separated_data %$%
+  leveneTest(Salary ~ Classification, center = median) -> classification.variance.results
 ```
 
 The Brown-Forsythe-Levene Test for Homogeneity of Variances resulted in a test statistic of \(F_0 = `r classification.variance.results$"F value"[1] %>% round(digits=2)`\) (\(`r classification.variance.results$"Pr(>F)"[1] %>% p.value.string`\)), so there is sufficient evidence to suggest that at least one of the classifications' salaries have a variance different from the others.
@@ -218,7 +219,8 @@ classification.gender.interaction.results %>% almost_sas()
 ```
 
 ```{r Kruskal Wallis classification}
-classification.kw.test <- gender.separated_data %$% kruskal.test(Salary ~ Classification) %>% tidy()
+classification.kw.test <- gender.separated_data %$%
+  kruskal.test(Salary ~ Classification) %>% tidy()
 ```
 The Kruskal-Wallis test on the salaries grouped by classifications resulted in a test statistic \(H = `r classification.kw.test$statistic %>% round(digits=2)`\) (\(`r classification.kw.test$p.value %>% p.value.string`\)), so there is sufficient evidence to suggest that at least one classification is different from the others. Thus, the posthoc procedure for the Kruskal-Wallis test was completed to find pairwise differences between the classifications.
 
@@ -228,32 +230,42 @@ classification.kw.posthoc <- gender.separated_data %$% kruskalmc(Salary ~ Classi
 
 From the 153 possible pairwise comparisons, 91 resulted in significant difference. Complete results are not included, but of particular interest is the NCAA Division I: NCAA Division I-FBS had a significant difference from all of the 17 other classifications, NCAA Division I-FCS had a significant different from 16 other classifications, NCAA Division I without football the only exception, and similarly, with NCAA Division I without football, the only non-significant difference was with NCAA Division I-FCS.
 
-```{r linear regression participants}
-total.salary <- (institution_data$HDCOACH_SALARY_MEN + institution_data$HDCOACH_SALARY_WOMEN)
-total.participants <- (institution_data$IL_PARTIC_MEN + institution_data$IL_PARTIC_WOMEN)
-
-participants.regression <- tibble(total.salary, total.participants)
-
-participants.regression_model <- lm(total.salary ~ total.participants, data=participants.regression)
-participants.regression_coef <- coefficients(participants.regression_model)
-participants.regression_summary <- summary(participants.regression_model)
-participants.regression_t <- as_tibble(participants.regression_summary[[4]])
+```{r scatter plot of participants, echo=FALSE}
+gender.separated_data %>%
+ggplot(aes(x = Participation, y = Salary)) + 
+        geom_point() + 
+        geom_smooth(method = "lm", se = FALSE) +
+        ggtitle("Scatterplot of Salary and Participation") +
+        theme_bw() +
+        scale_y_continuous(labels = comma)
 ```
 
-The resulting regression model is 
-\[ \hat{y} = `r round(participants.regression_coef[[1]], digits=2)` + `r round(participants.regression_coef[[2]], digits=2)`x \]
 
-The test for significance of a regression line using the number of student participants resulted in a test statistic of \(t_0 = `r round(participants.regression_t$"t value"[2], digits=2)`\) (\(`r p.value.string(participants.regression_t$"Pr(>|t|)"[2])`\)).There was There is sufficient evidence to suggest that the regression line is significant.
+```{r linear regression participants}
+participation.model <- gender.separated_data %$% lm(Salary ~ Participation)
+participation.coefficients <- participation.model %>% coefficients()
+```
+
+Shown above is a scatterplot of the salary and participation data. Also displayed is the line of best fit from the linear regression model given by the following:
+\[ \hat{y} = `r participation.coefficients[[1]] %>% round(digits = 2)` + `r participation.coefficients[[2]] %>% round(digits = 2)`x \]
+
+```{r model significance}
+participation.summary <- participation.model %>% summary()
+participation.t.test <- participation.summary[[4]] %>% as_tibble()
+```
+
+A \(t\)-test was conducted to test the signifiance of the linear regression model. This resulted in a test statistics of \(t_0 = `r participation.t.test$"t value"[2] %>% round(digits=2)`\) (\(`r participation.t.test$"Pr(>|t|)"[2] %>% p.value.string()`\)). There was sufficient evidence to suggest that the regression line is significant.
 
 ```{r linear regression appropriate}
-participants.regression_lack <- pureErrorAnova(participants.regression_model)
+participants.regression.appropriate <- participation.model %>%  pureErrorAnova()
 ```
 
 The lack of fit ANOVA table is as follows:
-`r pander(participants.regression_lack, style='rmarkdown')`
+```{r lack of fit ANOVA table, echo=FALSE}
+participants.regression.appropriate %>% kable(booktabs = T)
+```
 
-Testing whether or not a linear regression model is appropriate resulted in test statistic \(F_0 = `r round(participants.regression_lack$"F value"[3], digits=2)`\) (\(`r p.value.string(participants.regression_lack$"Pr(>F)"[3])`\). There is sufficient evidence to suggest that a linear regression model is not appropriate.
-
+Testing whether or not a linear regression model is appropriate resulted in test statistic \(F_0 = `r round(participants.regression.appropriate$"F value"[3], digits=2)`\) (\(`r p.value.string(participants.regression.appropriate$"Pr(>F)"[3])`\)). There is sufficient evidence to suggest that a linear regression model is not appropriate.
 
 # Conclusion
 <!-- %TODO Restate the results in terms of the larger picture; state limitations and opportunities for future research (20 points) -->
