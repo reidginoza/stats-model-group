@@ -14,6 +14,7 @@ nocite: |
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(cowplot)
 library(pgirmess)
 library(car)
 library(pander)
@@ -26,6 +27,7 @@ library(kableExtra) # for tables
 library(magrittr)  # provides more pipe oeprators
 library(haven)
 library(alr3) #for pureErrorANOVA
+
 almost_sas <- function(aov.results){
   par(mfrow=c(2,2))
   plot(aov.results, which=1)
@@ -34,6 +36,7 @@ almost_sas <- function(aov.results){
   plot(density(aov_residuals))
   hist(aov_residuals)
 }
+
 p.value.string = function(p.value){
   p.value <- round(p.value, digits = 4)
   if (p.value == 0) {
@@ -54,14 +57,18 @@ institution_data <- read_spss('InstLevel.sav') %>%
   filter(!is.na(HDCOACH_SALARY_MEN)) %>% # filter out NA
   filter(!is.na(HDCOACH_SALARY_WOMEN)) %>% # filter out NA
   type.convert()  # makes ints and factors
+
 ncaa.div.i_data <- institution_data %>%
   filter(grepl('NCAA Division I-', Classification)) # only NCAA division 1
+
 men_data <- institution_data %>%
   select(-contains("WOMEN")) %>% 
   rename(Salary = HDCOACH_SALARY_MEN, Participation = IL_PARTIC_MEN)
+
 women_data <- institution_data %>%
   select(-contains("_MEN")) %>%
   rename(Salary = HDCOACH_SALARY_WOMEN, Participation = IL_PARTIC_WOMEN)
+
 gender.separated_data <- bind_rows(
   men_data %>% add_column(Gender = "Men"),
   women_data %>% add_column(Gender = "Women")
@@ -69,67 +76,47 @@ gender.separated_data <- bind_rows(
 ```
 
 # Introduction
-<!-- %TODO Briefly give meaning to your project – what is the background and why is this project important?  (20 points) -->
-While it seems to be common knowledge that many of the highest paid US public employees are college sports teams head coaches [@busin2018], less is known about the salaries of college-level sports head coaches in general. Is head coaching a lucrative career for all or only a select few? What knowledge can we gain about head coaches in private schools or across other divisions and classifications?
+<!-- Briefly give meaning to your project – what is the background and why is this project important?  (20 points) -->
+While it seems to be common knowledge that many of the highest paid US public employees are college sports teams head coaches [@busin2018], less is known about the salaries of college-level sports head coaches in general. Is head coaching a lucrative career for all or only a select few? What knowledge can we gain about head coaches in private schools or across other divisions and classifications outside of the NCAA Division I?
 
-In this project, we examined institution-level data from the Equity in Athletics Survey, academic year 2017-2018, from the U.S. Department of Education Office of Postsecondary Education [-@EADA2018]. In this analysis we investigated potential predictors for salaries of sports team head coaches at four-year colleges and universities in the United States. This project focused on differences of salaries between head coaches of male teams and female teams; salary diversity between division classifications; and the effects of the number of student participants (i.e. athletes) on head coach salaries. Classifications were defined by the Equity in Athletics Survey according to the athletic association (such as NAIA, NCAA, etc) and divisions or subdivisions where applicable (e.g. NCAA Division I-FBS, NCAA Division I-FCS, NCAA Division I without football).
+In this project, we examined institution-level data from the Equity in Athletics Survey, academic year 2017-2018, from the U.S. Department of Education Office of Postsecondary Education [-@EADA2018]. In this analysis we investigated potential predictors for salaries of sports team head coaches at four-year colleges and universities in the United States. This project focused on differences of salaries between head coaches of male teams and female teams; salary diversity between division classifications; and the effects of the number of student participants (i.e. athletes) on head coach salaries. Classifications were defined by the Equity in Athletics Survey according to the athletic association (such as NAIA, NCAA, etc) and divisions or subdivisions where applicable (e.g. NCAA Division I-FBS, NCAA Division I-FCS, NCAA Division I without football). Data was available from the Office of Postsecondary Education from academic year 2002-03 to 2017-18, and this study focused on data from the most recent academic year.
 
-The full data set listed completed surveys for 2079 institutions. Excluded were the 578 two-year colleges, the 120 four-year schools with co-ed teams, and 18 institutions with missing values for head coach salaries. Our working data set had 1363 four-year institutions without co-ed sports teams. Data was available from the Office of Postsecondary Education from academic year 2002-03 to 2017-18, and this study focused on data from the most recent academic year.
+The full data set for 2017-18 listed completed surveys for 2079 institutions. Excluded were the 578 two-year colleges, the 120 four-year schools with co-ed teams, and 18 institutions with missing values for head coach salaries for male or female teams or both. Our working data set had 1363 four-year institutions without co-ed sports teams, and each institution had a classification, an average head coach salary for men's teams, an average head coach salary for women's teams, a participation count of men, and a participation count of women.
 
 # Hypotheses
-<!-- %TODO Clearly state the hypotheses being tested. (20 points) -->
-Overall, we examined whether school classification and/or gender of the teams affect head coach salaries. To do this, we first tested the equality of variances of head coach salaries for male teams versus female teams: 
-\(H_0\): \(\sigma^2_{\text{men}} = \sigma^2_{\text{women}}\)
+<!-- Clearly state the hypotheses being tested. (20 points) -->
+To study predictors of head coach salaries, we performed several hypothesis tests. We started by investigating the gender of the team as a predictor. We first hypothesized that the variances of the head coach salaries were different between the coaches of male teams compared with the coaches of female teams.  
+\(H_0\): \(\sigma^2_{\text{men}} = \sigma^2_{\text{women}}\),    \(H_1\): \(\sigma^2_{\text{men}} \ne \sigma^2_{\text{women}}\) 
 
-\(H_1\): \(\sigma^2_{\text{men}} \ne \sigma^2_{\text{women}}\) 
+We then hypothesized that the median of the salaries for coaches of male teams was greater than that of the female teams: \(H_0\): \(M_{\text{male}} \le M_{\text{female}}\),    \(H_1\): \(M_{\text{male}} > M_{\text{female}}\)
 
-As noted in the Results section below, we concluded that this data does not meet the assumption of equal variances for parametric testing of means, so we went on to compare the medians:
+The classification was our second predictor under investigation. We also expected there to be differences of salaries between classifications, but we first wanted to see if we could control for the effects of the gender of the team. We predicted that there would not be an interaction between classification and gender on head coach salaries: \(H_0\): there is not an interaction between classification and gender,    \(H_1\): there is an interaction between classification and gender
 
-\(H_0\): \(M_{\text{male}} < M_{\text{female}}\) 
+As part of understanding head coach salaries in different classifications, we hypothesized that the variance of salaries between the classifications would not be homogeneous.  
+\(H_0\): \(\sigma^2_{\text{DivI-noFB}} = \sigma^2_{\text{DivI-FBS}} = \sigma^2_{\text{DivI-FCS}} = \ldots= \sigma^2_{n=18}\),    \(H_1\): at least one is different
 
-\(H_1\): \(M_{\text{male}} \ge M_{\text{female}}\)
+We then predicted that out of all the 18 classifications, at least one of the median salary of head coaches would be different from that of coaches in other classifications:  
+\(H_0\): \(M_{\text{DivI-noFB}} = M_{\text{DivI-FBS}} = M_{\text{DivI-FCS}} = \ldots= M_{n=18}\),    \(H_1\): at least one is different
 
-Next, we checked for interaction effects between classification and gender of team:  
-\(H_0\): there is not an interaction between classification and gender 
+Lastly, number of participants was our third predictor under investigation. We hypothesized that a linear regression model with the number of participants would predict the head coach salaries: \(H_0\): \(\beta = 0 \),    \(H_1\): \(\beta \ne 0 \)
 
-\(H_1\): there is an interaction between classification and gender 
-
-We also assessed the homogeneity of variances between the classifications: 
-
-\(H_0\): \(\sigma^2_{\text{DivI-noFB}} = \sigma^2_{\text{DivI-FBS}} = \sigma^2_{\text{DivI-FCS}} = ...= \sigma^2_{n=18}\) 
-
-\(H_1\): at least one is different  
-
-Based on the results of this test, we then moved forward with testing for a difference in the median salaries of head coaches between the various classifications: 
-
-\(H_0\): \(M_{\text{DivI-noFB}} = M_{\text{DivI-FBS}} = M_{\text{DivI-FCS}} = ...= M_{n=18}\)
-
-\(H_1\): at least one is different 
-
-We also investigated whether the number of participants institution-wide predicts head coach salaries: 
-
-\(H_0\): \(\beta = 0 \) 
-
-\(H_1\): \(\beta \ne 0 \) 
-
-Finally, we examined the lack of fit in the linear regression model:  
-\(H_0\): a linear regression model is appropriate 
-
-\(H_1\): a linear regression model is not appropriate
+And to determine this model's usefulness, we hypothesized that the linear regression model would be appropriate: \(H_0\): a linear regression model is appropriate, \(H_1\): a linear regression model is not appropriate
 
 # Methods
-<!-- %TODO State and explain the methodology used to test the hypotheses.  (20 points) -->
+<!-- State and explain the methodology used to test the hypotheses.  (20 points) -->
 Data was analyzed using R version 3.6.1 (2019-07-05) [@rlang]. The data was described using counts (percentage) for categorical variables and mean (standard deviation) for continuous variables. 
 
-To assess the homogeneity of variances for salaries of head coaches of male teams versus female teams, we employed the testing procedure utilizing the F-distribution. Because the results of this test suggest the variances are not equal, we next examined the salary medians using the Wilcoxon Rank Sum Test.
+To assess the homogeneity of variances for salaries of head coaches of male teams versus female teams, we tested the ratio of the two variances using the \(F\)-distribution. If the normality assumptions were met on the samples, we would use the \(t\)-test to test the means of the head coach salaries of male teams vs female teams. Otherwise, the nonparametric Wilcoxon test would be used to test the difference in the medians.
 
-To analyze the interactions of gender and classification, a two-way ANOVA was completed. A Brown-Forsythe-Levene Test for homogeneity of variances was conducted on the variances of the classifications. After an examination of the residuals, a Kruskal-Wallis was used to test if there are differences between the classifications, and the posthoc Kruskal-Wallis procedure was used for pairwise comparisons.
+To analyze the interactions of gender and classification, a two-way ANOVA was completed, and a test for interactions was performed with the \(F\) statistic. A Brown-Forsythe-Levene Test for homogeneity of variances was conducted on the variances of the classifications. After an examination of the residuals of the ANOVA, a Kruskal-Wallis was used to test if there are differences between the classifications, and the posthoc Kruskal-Wallis procedure was used for pairwise comparisons.
 
-Due to the way the data was arranged, data for the linear regression model of the head coach salary and participation level used two cases for each school -- one for the women participants and women's team coaches' salaries and one for those of the men. Thus the participation level used was more specifically participation by gender. Finally, we determined whether or not a linear regression model is appropriate by using the test for lack of fit in linear regression.
+Due to the way the data was arranged, data for the linear regression model of the head coach salary and participation level used two cases for each school -- one for the women participants and women's team coaches' salaries and one for those of the men. Thus the participation level used was more specifically participation by gender. A linear regression model was constructed, and a \(t\)-test was used to determine the significance of the model. Finally, we determined whether or not a linear regression model is appropriate by using the test for lack of fit in linear regression.
 
 # Results
 ## Description of Data
-<!-- %TODO Describe the data (1st paragraph) -->
+<!-- Describe the data (1st paragraph) -->
+Data are summarized in the tables below, but some highlights are included here. First, of all head coaches of both male and female teams the lowest salary for a head coach was \$763, while the highest was \$2,222,497. The mean was \$77,955.90 (\$69,698.10). Looking at participation by gender, the lowest participation was 1 student, and the highest was 728 students. The mean participation grouped by gender at an institution was 387.28 (207.90) student athletes. The classification with the largest number of institutions was NCAA Division III with football with 223 (16.4 %) institutions. Independent and NJCAA Division III were the smallest groups with 4 (0.3 %) institutions each.
+
 ```{r continuous variables description part 1, include=FALSE}
 # Couldn't figure out how to do what I wanted, so I made the table "by hand"
 men.salary_mean <- institution_data$HDCOACH_SALARY_MEN %>% mean() %>% round(digits = 2) %>% prettyNum(big.mark=",", trim=TRUE, digits = 8, scientific = FALSE)
@@ -160,20 +147,24 @@ tribble(
 `r summary.table.text`
 ```{r categorical variables description, echo=FALSE}
 gender.separated_data %>% group_by(Classification) %>% summarize('Salary Mean' = format(mean(Salary), nsmall = 2, big.mark = ','), 'Salary SD'= format(sd(Salary), nsmall = 2, big.mark = ',')) -> grouped.salary
+
 institution_data %>% group_by(Classification) %>% summarize(Count = n()) %>%
   mutate(Percentage = percent(Count / 1363)) -> grouped.counts
+
 inner_join(grouped.counts, grouped.salary, by='Classification') %>% kable(booktabs = T,
-linesep = c("\\addlinespace", "", "\\addlinespace", "", "", "\\addlinespace", "", "\\addlinespace", "", "\\addlinespace", "", "\\addlinespace", "", "", "\\addlinespace", "\\addlinespace", "\\addlinespace", "\\addlinespace"))
+  linesep = c("\\addlinespace", "", "\\addlinespace", "", "", "\\addlinespace", "", "\\addlinespace", "", "\\addlinespace", "",        "\\addlinespace", "", "", "\\addlinespace", "\\addlinespace", "\\addlinespace", "\\addlinespace"))
 ```
 
-```{r describe head coach salaries, echo=FALSE, message=FALSE}
+```{r describe head coach salaries, echo=FALSE, message=FALSE, fig.height=3}
+bw.gender <- 20 * IQR(gender.separated_data$Salary) / length(gender.separated_data$Salary)^(1/3)
 gender.separated_data %>%
   ggplot(aes(x = Salary, fill = Gender)) +
-  geom_histogram(position = "dodge") +
+  geom_histogram(binwidth = bw.gender, position = position_dodge2(preserve = "single")) +
+  #geom_bar(position = position_dodge2(preserve = "total")) +
   labs(title="Head Coach Salary", x = "Salary (USD)",
        y = "Count", fill = "Gender:") +
   theme(
-    legend.position="bottom",
+    legend.position="right",
     panel.background = element_rect(fill = 'white', color = 'grey'),
     panel.grid.major = element_line(size = 0.25, linetype = 'solid',
                                 color = "grey"), 
@@ -192,8 +183,40 @@ gender.variance.test <- institution_data %$%
 gender.var.p.val <- p.value.string(gender.variance.test$p.value)
 ```
 
-The test for equality of variances between salaries of head coaches of men's versus women's teams resulted in a test statistic of \(F_0 = `r round(gender.variance.test$statistic, digits=2)`\) (\(`r gender.var.p.val`\)) and critical value of \(F_{\alpha /2, df_{\text{men}}, df_{\text{women}}} \) = 1.081, using \(\alpha\) = 0.05. There was sufficient evidence to suggest a difference between the variances of the two groups.
+The test for equality of variances between salaries of head coaches of men's versus women's teams resulted in a test statistic of \(F_0 = `r round(gender.variance.test$statistic, digits=2)`\) (\(`r gender.var.p.val`\)) and critical value of \(F_{\alpha /2, df_{\text{men}}, df_{\text{women}}} \) = 1.081, using \(\alpha\) = 0.05. There was sufficient evidence to suggest a difference between the variances of head coach salaries of male teams and female teams.
 
+```{r qq plots for gender, echo=FALSE, fig.height=3}
+qq.plot.men <- institution_data %>% ggplot(aes(sample = HDCOACH_SALARY_MEN)) +
+  stat_qq() + stat_qq_line(color = 'red') + scale_y_continuous(labels = scales::scientific) +
+  theme_bw() + ggtitle("Male Teams")
+
+qq.plot.women <- institution_data %>% ggplot(aes(sample = HDCOACH_SALARY_WOMEN)) +
+  stat_qq() + stat_qq_line(color = 'red') + scale_y_continuous(labels = scales::scientific) +
+  theme_bw() + ggtitle("Female Teams")
+
+plot.row <- plot_grid(qq.plot.men, qq.plot.women)
+
+qq.title <- ggdraw() + 
+  draw_label(
+    "QQ-Plots for Head Coach Salaries by Gender of Team",
+    fontface = 'bold',
+    x = 0,
+    hjust = 0
+  ) +
+  theme(
+    # add margin on the left of the drawing canvas,
+    # so title is aligned with left edge of first plot
+    plot.margin = margin(0, 0, 0, 7)
+  )
+plot_grid(
+  qq.title, plot.row,
+  ncol = 1,
+  # rel_heights values control vertical title margins
+  rel_heights = c(0.1, 1)
+)
+```
+
+Upon visual inspection of the qq-plots, the data for salaries by gender of team could not be assumed to be normal.
 &nbsp;
 
 ```{r Wilcoxon gender}
@@ -212,6 +235,8 @@ Testing to see if salaries of head coaches of men's teams tend to be greater tha
 classification.gender.interaction.results <- gender.separated_data %$% 
   aov(Salary ~ Classification * Gender)
 interaction.summary <- classification.gender.interaction.results %>% summary()
+interaction.resid <- tibble(Residuals=(
+  classification.gender.interaction.results %>% residuals()))
 ```
 
 An ANOVA model with gender and classification factors resulted in a test statistic for interactions of \(F_0 = `r interaction.summary[[1]][["F value"]][3] %>% round(digits=2)`\) (\(`r interaction.summary[[1]][["Pr(>F)"]][3] %>% p.value.string()`\)). There was sufficient evidence to suggest that there are interaction effects between gender and classification.
@@ -252,7 +277,34 @@ Upon a visual examination of the residuals and the q-q plot, it is also clear th
 &nbsp;
 
 ```{r ANOVA assumptions, echo=FALSE}
-classification.gender.interaction.results %>% almost_sas()
+# classification.gender.interaction.results %>% almost_sas()
+residual.plot <- classification.gender.interaction.results %>%
+  ggplot(aes(x = .fitted, y = .resid)) +
+  geom_point() +
+  geom_hline(yintercept = 0, color = 'red') + 
+  ggtitle("Residuals vs. Fitted") +
+  theme_bw() + 
+  scale_y_continuous(labels = scales::scientific)
+
+qq.plot <- interaction.resid %>% ggplot(aes(sample = Residuals)) +
+  stat_qq() + stat_qq_line(color = 'red') + scale_y_continuous(labels = scales::scientific) +
+  theme_bw() + ggtitle("Q-Q Plot of Residuals")
+
+bw <- 2 * IQR(interaction.resid$Residuals) / length(interaction.resid$Residuals)^(1/3)
+
+histogram.resid <- interaction.resid %>% ggplot(aes(x=Residuals)) +
+  geom_histogram(binwidth = bw) +
+  ggtitle("Histogram of Residuals") + 
+  scale_x_continuous(labels = scales::scientific) +
+  theme_bw()
+
+density.resid <- interaction.resid %>% ggplot(aes(x=Residuals)) +
+  geom_density() +
+  ggtitle("Density Plot of Residuals") + 
+  scale_x_continuous(labels = scales::scientific) +
+  theme_bw()
+
+cowplot::plot_grid(residual.plot, qq.plot, histogram.resid, density.resid)
 ```
 
 ```{r Kruskal Wallis classification}
@@ -315,15 +367,17 @@ Testing whether or not a linear regression model is appropriate resulted in test
 
 # Conclusion
 <!-- %TODO Restate the results in terms of the larger picture; state limitations and opportunities for future research (20 points) -->
-We sought to understand the factors of head coach salaries at the collegiate level, and while the highest salaries are commonly reported, not all head coaches have those headline-worthy salaries. Notably, there is evidence to suggest that head coaches of men's teams receive higher salaries than head coaches of women's teams. This is not particulary surprising when considering gender bias in sports (both collegiate and professional) and related revenues and funding <!--site a source?-->. However, missing from this data is the genders of the coaches themselves. Generally, men coach men's teams, but men and women both coach women's teams. With this data provided, future analyses may be conducted to determine if differences exist between male head coaches and female head coaches, regardless of the gender of the teams. 
+We sought to understand the factors of head coach salaries at the collegiate level, and while the highest salaries are commonly reported, not all head coaches have those headline-worthy salaries. The NCAA Division I had the highest salaries, and notably, the biggest difference between salaries of coaches for the men's teams and that of the women's teams. That the subdivisions of NCAA Division I were also shown to be different from one another further suggests that these differences in subdivisions strongly affect head coach salary.
 
-Examining the interaction effects between classification and gender, revealed that the NCAA Division I had the most differences between male and female head coaches. Furthermore, it appears that the NCAA Division I, with its different subdivisions (FBS, FCS, without football) were each different from all of the remaining classifications. This makes sense as there are different funding allowances between these subdivisions, but only between football teams. A future study might investigate the head coach salaries of collegiate football head coaches separately from the other sports or compare head coaches across classification and sport. Perhaps the sport of football is where the greatest gender disparity of salary exists.
+There are different funding allowances between these subdivisions, but only between football teams. A future study might investigate the head coach salaries of collegiate football head coaches separately from the other sports or compare head coaches across classification and sport. Perhaps the sport of football is where the greatest gender disparity of salary exists.
 
-<!--linear regression conclusion-->
+This difference in head coach salary based on gender is alarming, and we urge our readers to investigate further. However, we wish to be specific: our data reports the gender of the athletes themselves, whereas we are calling attention to the position of head coach. Missing from our data from the EADA survey is the genders of the coaches themselves. Generally, men coach men's teams, but men and women both coach women's teams. Future analyses should investigate whether there are differences exist between male head coaches and female head coaches, regardless of the gender of the teams. 
+
+Further investigation is also needed to understand the relationship between participation numbers and head coach salary. We gave shown that generally, the salary will increase with the increasing of participation, but our current linear model was not appropriate and we urge our readers to continue to find a more appropriate model.
 
 Our data set contained only the averages of head coach salaries of a given institution, so we were unable to capture any variance within an institution. Of particular interest would be variation between head coaches by type of sports, within and across institutions. Additionally, this study only used the surveys from one scholastic year, and future studies should investigate the salaries over multiple years.
 
-This was an initial study of salaries of head coaches of collegiate sports teams. While there is more work to be done, we believe we have paved the way in identifying important factors of their salaries, and we hope others will continue the investigation.
+This was an initial study of salaries of head coaches of collegiate sports teams. While there is more work to be done, we believe we have paved the way in identifying important predictors of their salaries, and we hope others will continue the investigation.
 
 \newpage
 
